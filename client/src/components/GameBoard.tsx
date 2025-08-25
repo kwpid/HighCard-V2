@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { playGame, generateAIName, calculateMMRChange } from "../lib/gameLogic";
+import { calculateXPGain } from "../lib/xpSystem";
 import Card from "./Card";
-import { ArrowLeft, Crown, Zap } from "lucide-react";
+import XPGainDisplay from "./XPGainDisplay";
+import { ArrowLeft, Crown, Zap, Star } from "lucide-react";
 
 interface GameCard {
   id: string;
@@ -23,7 +25,7 @@ interface Player {
 
 const GameBoard = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
-  const { updateStats, playerStats } = usePlayerStore();
+  const { updateStats, playerStats, getXPProgress } = usePlayerStore();
   
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentRound, setCurrentRound] = useState(1);
@@ -33,6 +35,9 @@ const GameBoard = () => {
   const [gameEnded, setGameEnded] = useState(false);
   const [gameWinner, setGameWinner] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showXPGain, setShowXPGain] = useState(false);
+  const [xpGained, setXpGained] = useState(0);
+  const [previousXPProgress, setPreviousXPProgress] = useState(getXPProgress());
 
   // Initialize game
   useEffect(() => {
@@ -311,6 +316,10 @@ const GameBoard = () => {
     
     setGameWinner(winner);
     
+    // Calculate XP gained
+    const xpGained = calculateXPGain(playerWon, gameMode, gameType);
+    setXpGained(xpGained);
+    
     // Update player stats with opponent MMR for ranked games
     if (gameMode === 'ranked') {
       const opponentMMR = gameType === '1v1' ? players[1].mmr : 
@@ -320,6 +329,11 @@ const GameBoard = () => {
       updateStats(gameMode, gameType, playerWon);
     }
     
+    // Show XP gain display after a short delay
+    setTimeout(() => {
+      setShowXPGain(true);
+    }, 2000);
+    
     setIsProcessing(false);
   };
 
@@ -327,6 +341,16 @@ const GameBoard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
+      {/* XP Gain Display */}
+      {showXPGain && (
+        <XPGainDisplay
+          xpGained={xpGained}
+          previousXPProgress={previousXPProgress}
+          currentXPProgress={getXPProgress()}
+          onClose={() => setShowXPGain(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
@@ -351,12 +375,20 @@ const GameBoard = () => {
           )}
         </div>
         
+        {/* XP Progress in Header */}
         <div className="text-right">
-          <div className="text-lg font-semibold text-emerald-400">
-            {gameType === '1v1' ? 
-              `${players[0]?.score || 0} - ${players[1]?.score || 0}` :
-              `Team 1: ${(players[0]?.score || 0) + (players[1]?.score || 0)} | Team 2: ${(players[2]?.score || 0) + (players[3]?.score || 0)}`
-            }
+          <div className="flex items-center gap-2 mb-1">
+            <Star size={16} className="text-yellow-400" />
+            <span className="text-sm text-white font-medium">Level {playerStats.level}</span>
+          </div>
+          <div className="text-xs text-gray-400">
+            {getXPProgress().currentXP} / {getXPProgress().xpToNextLevel} XP
+          </div>
+          <div className="w-24 bg-gray-700 rounded-full h-1.5 mt-1">
+            <div 
+              className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${getXPProgress().progressPercentage}%` }}
+            ></div>
           </div>
         </div>
       </div>
@@ -470,6 +502,23 @@ const GameBoard = () => {
                 </div>
               </div>
             )}
+
+            {/* XP Gain Display */}
+            <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Star size={20} className="text-yellow-400" />
+                <div className="text-sm text-gray-400">Experience Gained</div>
+              </div>
+              <div className="text-lg font-semibold text-emerald-400 mb-2">
+                +{xpGained} XP
+              </div>
+              <div className="text-xs text-gray-400">
+                Level {previousXPProgress.level} → Level {getXPProgress().level}
+                {getXPProgress().level > previousXPProgress.level && (
+                  <span className="text-yellow-400 ml-2">🎉 Level Up!</span>
+                )}
+              </div>
+            </div>
             
             <button
               onClick={() => setCurrentScreen('menu')}

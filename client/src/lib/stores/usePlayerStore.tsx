@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getRankFromMMR, calculateMMRChange } from "../gameLogic";
 import { useLeaderboardStore } from "./useLeaderboardStore";
+import { calculateXPGain, checkLevelUp, calculateXPProgress } from "../xpSystem";
 
 type GameMode = 'casual' | 'ranked';
 type GameType = '1v1' | '2v2';
@@ -28,6 +29,8 @@ interface PlayerStats {
     '2v2': RankedStats;
   };
   totalSeasonWins: number;
+  level: number;
+  xp: number;
 }
 
 interface PlayerState {
@@ -40,6 +43,7 @@ interface PlayerState {
   initializePlayer: () => void;
   resetSeasonStats: () => void;
   setUsername: (username: string) => void;
+  getXPProgress: () => ReturnType<typeof calculateXPProgress>;
 }
 
 const defaultStats: PlayerStats = {
@@ -58,6 +62,8 @@ const defaultStats: PlayerStats = {
     },
   },
   totalSeasonWins: 0,
+  level: 1,
+  xp: 0,
 };
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -68,6 +74,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   updateStats: (gameMode, gameType, won, opponentMMR) => {
     set((state) => {
       const newStats = { ...state.playerStats };
+      
+      // Calculate and add XP
+      const xpGained = calculateXPGain(won, gameMode, gameType);
+      newStats.xp += xpGained;
+      
+      // Check for level up
+      const newLevel = checkLevelUp(newStats.xp, newStats.level);
+      if (newLevel) {
+        newStats.level = newLevel;
+      }
       
       if (gameMode === 'casual') {
         const casualStats = newStats.casualStats[gameType];
@@ -141,6 +157,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (savedStats) {
       try {
         const parsedStats = JSON.parse(savedStats);
+        // Ensure level and xp exist for backward compatibility
+        if (parsedStats.level === undefined) parsedStats.level = 1;
+        if (parsedStats.xp === undefined) parsedStats.xp = 0;
         set({ playerStats: parsedStats });
       } catch (error) {
         console.error('Error parsing saved player stats:', error);
@@ -191,5 +210,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       
       return { playerStats: newStats };
     });
+  },
+
+  getXPProgress: () => {
+    const { playerStats } = get();
+    return calculateXPProgress(playerStats.xp, playerStats.level);
   },
 }));

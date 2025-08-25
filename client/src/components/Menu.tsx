@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users } from "lucide-react";
+import XPProgress from "./XPProgress";
 
 const Menu = () => {
   const { setCurrentScreen, setSelectedMode, setModalsOpen } = useGameStore();
-  const { playerStats, currentSeason } = usePlayerStore();
+  const { playerStats, currentSeason, getXPProgress } = usePlayerStore();
   const [timeToNextSeason, setTimeToNextSeason] = useState("");
 
   useEffect(() => {
@@ -69,6 +70,11 @@ const Menu = () => {
         <div className="text-lg text-gray-400">
           Season {currentSeason} • Next season in: <span className="text-emerald-400 font-semibold">{timeToNextSeason}</span>
         </div>
+      </div>
+
+      {/* XP Progress */}
+      <div className="w-full max-w-2xl mb-6">
+        <XPProgress xpProgress={getXPProgress()} showDetails={true} />
       </div>
 
       {/* Season Rewards Progress */}

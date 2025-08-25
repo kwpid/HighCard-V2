@@ -1,10 +1,11 @@
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { ArrowLeft, Users, User, Trophy, Star } from "lucide-react";
+import XPProgress from "./XPProgress";
 
 const ModeSelectScreen = () => {
   const { selectedMode, setCurrentScreen, setGameMode } = useGameStore();
-  const { playerStats } = usePlayerStore();
+  const { playerStats, getXPProgress } = usePlayerStore();
 
   const handleModeSelect = (gameType: '1v1' | '2v2') => {
     if (selectedMode) {
@@ -41,6 +42,11 @@ const ModeSelectScreen = () => {
         <ArrowLeft size={20} />
         Back to Menu
       </button>
+
+      {/* XP Progress */}
+      <div className="absolute top-6 right-6 w-48">
+        <XPProgress xpProgress={getXPProgress()} showDetails={false} />
+      </div>
 
       {/* Season Rewards Progress (for ranked only) */}
       {selectedMode === 'ranked' && (

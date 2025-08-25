@@ -1,10 +1,11 @@
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { X, TrendingUp, Trophy, Zap } from "lucide-react";
+import { X, TrendingUp, Trophy, Zap, Star } from "lucide-react";
+import XPProgress from "./XPProgress";
 
 const StatsModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
-  const { playerStats } = usePlayerStore();
+  const { playerStats, getXPProgress } = usePlayerStore();
 
   if (!modalsOpen.stats) return null;
 
@@ -55,6 +56,54 @@ const StatsModal = () => {
                    playerStats.rankedStats['1v1'].gamesPlayed + playerStats.rankedStats['2v2'].gamesPlayed}
                 </div>
                 <div className="text-sm text-gray-400">Games Played</div>
+              </div>
+            </div>
+          </div>
+
+          {/* XP and Leveling */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <Star size={24} className="text-yellow-400" />
+              Experience & Leveling
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* XP Progress */}
+              <div className="bg-gray-700 rounded-lg p-4">
+                <XPProgress xpProgress={getXPProgress()} showDetails={true} />
+              </div>
+              
+              {/* XP Details */}
+              <div className="bg-gray-700 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-yellow-400 mb-3">XP Information</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Current Level:</span>
+                    <span className="text-white font-medium">{playerStats.level}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Total XP:</span>
+                    <span className="text-emerald-400 font-medium">{playerStats.xp}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">XP from Casual:</span>
+                    <span className="text-blue-400 font-medium">
+                      {playerStats.casualStats['1v1'].gamesPlayed + playerStats.casualStats['2v2'].gamesPlayed} × 5 XP
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">XP from Ranked:</span>
+                    <span className="text-emerald-400 font-medium">
+                      {playerStats.rankedStats['1v1'].gamesPlayed + playerStats.rankedStats['2v2'].gamesPlayed} × 10 XP
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">XP from Wins:</span>
+                    <span className="text-yellow-400 font-medium">
+                      {(playerStats.casualStats['1v1'].wins + playerStats.casualStats['2v2'].wins + 
+                        playerStats.rankedStats['1v1'].wins + playerStats.rankedStats['2v2'].wins) × 15} XP
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

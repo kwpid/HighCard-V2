@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { ArrowLeft, Users, Zap } from "lucide-react";
+import { ArrowLeft, Users, Zap, Star } from "lucide-react";
+import XPProgress from "./XPProgress";
 
 const QueueScreen = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
-  const { playerStats } = usePlayerStore();
+  const { playerStats, getXPProgress } = usePlayerStore();
   const [queueTime, setQueueTime] = useState(0);
   const [foundMatch, setFoundMatch] = useState(false);
 
@@ -42,6 +43,11 @@ const QueueScreen = () => {
         <ArrowLeft size={20} />
         Cancel Queue
       </button>
+
+      {/* XP Progress */}
+      <div className="absolute top-6 right-6 w-48">
+        <XPProgress xpProgress={getXPProgress()} showDetails={false} />
+      </div>
 
       {/* Queue Status */}
       <div className="text-center max-w-2xl">

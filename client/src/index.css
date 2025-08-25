@@ -95,3 +95,54 @@
 .rank-diamond { color: #b9f2ff; }
 .rank-champion { color: #9d4edd; }
 .rank-grand-champion { color: #ff006e; }
+
+/* XP Progress Styles */
+.xp-progress-bar {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xp-gain-animation {
+  animation: xpGain 1s ease-out;
+}
+
+@keyframes xpGain {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.level-up-animation {
+  animation: levelUp 1.5s ease-out;
+}
+
+@keyframes levelUp {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1) rotate(-5deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.15) rotate(3deg);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
