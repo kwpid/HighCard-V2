@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-inter antialiased bg-gray-900 text-white;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Custom dark theme colors */
+:root {
+  --background: 222 84% 5%;
+  --foreground: 213 31% 91%;
+  --card: 222 84% 5%;
+  --card-foreground: 213 31% 91%;
+  --popover: 222 84% 5%;
+  --popover-foreground: 213 31% 91%;
+  --primary: 142 76% 36%;
+  --primary-foreground: 355 7% 97%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 142 76% 36%;
+  --radius: 0.5rem;
+}
+
+/* Game specific styles */
+.card-shine {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%);
+}
+
+.power-card {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #f59e0b 100%);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.neon-border {
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, #10b981, #059669) border-box;
+  border-image: linear-gradient(45deg, #10b981, #059669) 1;
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.queue-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.rank-bronze { color: #cd7f32; }
+.rank-silver { color: #c0c0c0; }
+.rank-gold { color: #ffd700; }
+.rank-platinum { color: #e5e4e2; }
+.rank-diamond { color: #b9f2ff; }
+.rank-champion { color: #9d4edd; }
+.rank-grand-champion { color: #ff006e; }
