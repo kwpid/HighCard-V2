@@ -1,6 +1,7 @@
 // AI logic for different difficulty levels and playing styles
 
 import { GameCard, Player } from './gameLogic';
+import { useLeaderboardStore } from './stores/useLeaderboardStore';
 
 export type AIPersonality = 'aggressive' | 'conservative' | 'adaptive' | 'random';
 
@@ -24,7 +25,7 @@ export const generateAIOpponent = (playerMMR: number, gameMode: '1v1' | '2v2'): 
   // Try to get leaderboard opponent first (if player is high MMR)
   if (typeof window !== 'undefined') {
     try {
-      const { getOpponentByMMR } = require('./stores/useLeaderboardStore').useLeaderboardStore.getState();
+      const { getOpponentByMMR } = useLeaderboardStore.getState();
       const leaderboardOpponent = getOpponentByMMR(playerMMR, gameMode);
       
       if (leaderboardOpponent) {

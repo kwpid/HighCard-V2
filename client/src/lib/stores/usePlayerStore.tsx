@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { getRankFromMMR, calculateMMRChange } from "../gameLogic";
+import { useLeaderboardStore } from "./useLeaderboardStore";
 
 type GameMode = 'casual' | 'ranked';
 type GameType = '1v1' | '2v2';
@@ -120,7 +121,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       
       // Update leaderboards if in browser environment
       if (typeof window !== 'undefined') {
-        const { updatePlayerOnLeaderboards } = require('./useLeaderboardStore').useLeaderboardStore.getState();
+        const { updatePlayerOnLeaderboards } = useLeaderboardStore.getState();
         updatePlayerOnLeaderboards(get().username, newStats);
       }
       
