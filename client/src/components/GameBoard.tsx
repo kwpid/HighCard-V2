@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { playGame } from "../lib/gameLogic";
+import { playGame, generateAIName, calculateMMRChange } from "../lib/gameLogic";
 import Card from "./Card";
 import { ArrowLeft, Crown, Zap } from "lucide-react";
 
@@ -18,11 +18,12 @@ interface Player {
   score: number;
   isAI: boolean;
   team?: number;
+  mmr?: number; // Added for AI MMR
 }
 
 const GameBoard = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
-  const { updateStats } = usePlayerStore();
+  const { updateStats, playerStats } = usePlayerStore();
   
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentRound, setCurrentRound] = useState(1);
@@ -52,7 +53,8 @@ const GameBoard = () => {
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
-        isAI: true
+        isAI: true,
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
       });
     } else { // 2v2
       newPlayers.push({
@@ -67,21 +69,24 @@ const GameBoard = () => {
         cards: generateCards(),
         score: 0,
         isAI: true,
-        team: 1
+        team: 1,
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
       });
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
-        team: 2
+        team: 2,
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
       });
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
-        team: 2
+        team: 2,
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
       });
     }
     
@@ -280,6 +285,7 @@ const GameBoard = () => {
     let winner: string;
     let playerWon = false;
     
+    // Check final scores after all rounds are complete
     if (gameType === '1v1') {
       if (players[0].score > players[1].score) {
         winner = 'You win the match!';
@@ -305,8 +311,14 @@ const GameBoard = () => {
     
     setGameWinner(winner);
     
-    // Update player stats
-    updateStats(gameMode, gameType, playerWon);
+    // Update player stats with opponent MMR for ranked games
+    if (gameMode === 'ranked') {
+      const opponentMMR = gameType === '1v1' ? players[1].mmr : 
+        Math.floor(((players[1].mmr || 0) + (players[2].mmr || 0) + (players[3].mmr || 0)) / 3);
+      updateStats(gameMode, gameType, playerWon, opponentMMR);
+    } else {
+      updateStats(gameMode, gameType, playerWon);
+    }
     
     setIsProcessing(false);
   };
@@ -332,6 +344,11 @@ const GameBoard = () => {
           <div className="text-sm text-gray-400">
             {gameMode.charAt(0).toUpperCase() + gameMode.slice(1)} {gameType}
           </div>
+          {gameMode === 'ranked' && (
+            <div className="text-xs text-yellow-400 mt-1">
+              Your MMR: {playerStats.rankedStats[gameType].mmr}
+            </div>
+          )}
         </div>
         
         <div className="text-right">
@@ -368,6 +385,11 @@ const GameBoard = () => {
                 <div className="text-sm text-gray-400">
                   Cards remaining: {player.cards.filter(c => !c.used).length}
                 </div>
+                {gameMode === 'ranked' && player.mmr && (
+                  <div className="text-xs text-yellow-400 mt-1">
+                    MMR: {player.mmr}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -421,6 +443,34 @@ const GameBoard = () => {
                 }
               </div>
             </div>
+            
+            {/* MMR Change Display for Ranked Games */}
+            {gameMode === 'ranked' && (
+              <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+                <div className="text-sm text-gray-400 mb-2">MMR Change</div>
+                <div className="text-lg font-semibold text-emerald-400">
+                  {(() => {
+                    const currentMMR = playerStats.rankedStats[gameType].mmr;
+                    const opponentMMR = gameType === '1v1' ? players[1].mmr : 
+                      Math.floor(((players[1].mmr || 0) + (players[2].mmr || 0) + (players[3].mmr || 0)) / 3);
+                    const playerWon = gameWinner.includes('You') || gameWinner.includes('Your team');
+                    const mmrChange = calculateMMRChange(playerWon, currentMMR, opponentMMR);
+                    return mmrChange > 0 ? `+${mmrChange}` : `${mmrChange}`;
+                  })()}
+                </div>
+                <div className="text-xs text-gray-400">
+                  New MMR: {(() => {
+                    const currentMMR = playerStats.rankedStats[gameType].mmr;
+                    const opponentMMR = gameType === '1v1' ? players[1].mmr : 
+                      Math.floor(((players[1].mmr || 0) + (players[2].mmr || 0) + (players[3].mmr || 0)) / 3);
+                    const playerWon = gameWinner.includes('You') || gameWinner.includes('Your team');
+                    const mmrChange = calculateMMRChange(playerWon, currentMMR, opponentMMR);
+                    return currentMMR + mmrChange;
+                  })()}
+                </div>
+              </div>
+            )}
+            
             <button
               onClick={() => setCurrentScreen('menu')}
               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 

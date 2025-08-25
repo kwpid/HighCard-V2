@@ -199,12 +199,11 @@ const Menu = () => {
 
         <button
           onClick={() => setModalsOpen('leaderboards', true)}
-          disabled
-          className="bg-gray-700 text-gray-400 font-medium py-2 px-4 rounded-lg 
-                   cursor-not-allowed flex items-center gap-2"
+          className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg 
+                   transition-all duration-300 hover:scale-105 flex items-center gap-2"
         >
           <Trophy size={18} />
-          Leaderboards (Coming Soon)
+          Leaderboards
         </button>
 
         <button
