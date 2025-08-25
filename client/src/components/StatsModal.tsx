@@ -87,20 +87,20 @@ const StatsModal = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">XP from Casual:</span>
                     <span className="text-blue-400 font-medium">
-                      {playerStats.casualStats['1v1'].gamesPlayed + playerStats.casualStats['2v2'].gamesPlayed} × 5 XP
+                      {playerStats.casualStats['1v1'].gamesPlayed + playerStats.casualStats['2v2'].gamesPlayed} * 5 XP
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">XP from Ranked:</span>
                     <span className="text-emerald-400 font-medium">
-                      {playerStats.rankedStats['1v1'].gamesPlayed + playerStats.rankedStats['2v2'].gamesPlayed} × 10 XP
+                      {playerStats.rankedStats['1v1'].gamesPlayed + playerStats.rankedStats['2v2'].gamesPlayed} * 10 XP
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">XP from Wins:</span>
                     <span className="text-yellow-400 font-medium">
                       {(playerStats.casualStats['1v1'].wins + playerStats.casualStats['2v2'].wins + 
-                        playerStats.rankedStats['1v1'].wins + playerStats.rankedStats['2v2'].wins) × 15} XP
+                        playerStats.rankedStats['1v1'].wins + playerStats.rankedStats['2v2'].wins) * 15} XP
                     </span>
                   </div>
                 </div>
