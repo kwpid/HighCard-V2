@@ -234,7 +234,7 @@ const StatsModal = () => {
                     ></div>
                   </div>
                   <div className="text-xs text-gray-400">
-                    {10 - (playerStats.totalSeasonWins % 10)} wins until next reward
+                    {playerStats.totalSeasonWins % 10 === 0 ? 10 : 10 - (playerStats.totalSeasonWins % 10)} wins until next reward
                   </div>
                 </div>
               </div>

@@ -46,11 +46,11 @@ const defaultStats: PlayerStats = {
   },
   rankedStats: {
     '1v1': { 
-      wins: 0, losses: 0, gamesPlayed: 0, mmr: 0, 
+      wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
       currentRank: null, division: null, placementMatches: 0 
     },
     '2v2': { 
-      wins: 0, losses: 0, gamesPlayed: 0, mmr: 0, 
+      wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
       currentRank: null, division: null, placementMatches: 0 
     },
   },
