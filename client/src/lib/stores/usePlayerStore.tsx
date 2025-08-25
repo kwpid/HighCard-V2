@@ -15,7 +15,6 @@ interface RankedStats extends GameStats {
   currentRank: string | null;
   division: string | null;
   placementMatches: number;
-  seasonWins: number;
 }
 
 interface PlayerStats {
@@ -27,6 +26,7 @@ interface PlayerStats {
     '1v1': RankedStats;
     '2v2': RankedStats;
   };
+  totalSeasonWins: number;
 }
 
 interface PlayerState {
@@ -47,13 +47,14 @@ const defaultStats: PlayerStats = {
   rankedStats: {
     '1v1': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 0, 
-      currentRank: null, division: null, placementMatches: 0, seasonWins: 0 
+      currentRank: null, division: null, placementMatches: 0 
     },
     '2v2': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 0, 
-      currentRank: null, division: null, placementMatches: 0, seasonWins: 0 
+      currentRank: null, division: null, placementMatches: 0 
     },
   },
+  totalSeasonWins: 0,
 };
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -78,7 +79,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         
         if (won) {
           rankedStats.wins += 1;
-          rankedStats.seasonWins += 1;
+          newStats.totalSeasonWins += 1;
         } else {
           rankedStats.losses += 1;
         }
@@ -155,14 +156,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       
       // Reset placement matches and season wins
       newStats.rankedStats['1v1'].placementMatches = 0;
-      newStats.rankedStats['1v1'].seasonWins = 0;
       newStats.rankedStats['1v1'].currentRank = null;
       newStats.rankedStats['1v1'].division = null;
       
       newStats.rankedStats['2v2'].placementMatches = 0;
-      newStats.rankedStats['2v2'].seasonWins = 0;
       newStats.rankedStats['2v2'].currentRank = null;
       newStats.rankedStats['2v2'].division = null;
+      
+      newStats.totalSeasonWins = 0;
 
       // Save to localStorage
       localStorage.setItem('highcard-player-stats', JSON.stringify(newStats));

@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 type GameMode = 'casual' | 'ranked';
 type GameType = '1v1' | '2v2';
-type Screen = 'menu' | 'queue' | 'game';
+type Screen = 'menu' | 'mode-select' | 'queue' | 'game';
 
 interface ModalsState {
   stats: boolean;
@@ -16,11 +16,13 @@ interface GameState {
   currentScreen: Screen;
   gameMode: GameMode;
   gameType: GameType;
+  selectedMode: GameMode | null;
   modalsOpen: ModalsState;
   
   // Actions
   setCurrentScreen: (screen: Screen) => void;
   setGameMode: (mode: GameMode, type: GameType) => void;
+  setSelectedMode: (mode: GameMode) => void;
   setModalsOpen: (modal: keyof ModalsState, isOpen: boolean) => void;
   initializeGame: () => void;
 }
@@ -29,6 +31,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentScreen: 'menu',
   gameMode: 'casual',
   gameType: '1v1',
+  selectedMode: null,
   modalsOpen: {
     stats: false,
     settings: false,
@@ -40,6 +43,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   setCurrentScreen: (screen) => set({ currentScreen: screen }),
   
   setGameMode: (mode, type) => set({ gameMode: mode, gameType: type }),
+  
+  setSelectedMode: (mode) => set({ selectedMode: mode }),
   
   setModalsOpen: (modal, isOpen) =>
     set((state) => ({

@@ -151,9 +151,9 @@ const StatsModal = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Season Wins:</span>
+                    <span className="text-gray-400">Total Season Wins:</span>
                     <span className="text-emerald-400 font-medium">
-                      {playerStats.rankedStats['1v1'].seasonWins}
+                      {playerStats.totalSeasonWins}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -194,9 +194,9 @@ const StatsModal = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Season Wins:</span>
+                    <span className="text-gray-400">Total Season Wins:</span>
                     <span className="text-emerald-400 font-medium">
-                      {playerStats.rankedStats['2v2'].seasonWins}
+                      {playerStats.totalSeasonWins}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -225,35 +225,29 @@ const StatsModal = () => {
                 <h4 className="text-lg font-semibold text-yellow-400 mb-3">1v1 Season Rewards</h4>
                 <div className="space-y-3">
                   <div className="text-sm text-gray-400">
-                    Current Progress: {playerStats.rankedStats['1v1'].seasonWins} wins
+                    Current Progress: {playerStats.totalSeasonWins} wins
                   </div>
                   <div className="w-full bg-gray-600 rounded-full h-2">
                     <div 
                       className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min((playerStats.rankedStats['1v1'].seasonWins % 10) * 10, 100)}%` }}
+                      style={{ width: `${Math.min((playerStats.totalSeasonWins % 10) * 10, 100)}%` }}
                     ></div>
                   </div>
                   <div className="text-xs text-gray-400">
-                    {10 - (playerStats.rankedStats['1v1'].seasonWins % 10)} wins until next reward
+                    {10 - (playerStats.totalSeasonWins % 10)} wins until next reward
                   </div>
                 </div>
               </div>
 
-              {/* 2v2 Rewards */}
+              {/* Combined Season Rewards */}
               <div className="bg-gray-700 rounded-lg p-4">
-                <h4 className="text-lg font-semibold text-yellow-400 mb-3">2v2 Season Rewards</h4>
+                <h4 className="text-lg font-semibold text-yellow-400 mb-3">Combined Season Rewards</h4>
                 <div className="space-y-3">
                   <div className="text-sm text-gray-400">
-                    Current Progress: {playerStats.rankedStats['2v2'].seasonWins} wins
-                  </div>
-                  <div className="w-full bg-gray-600 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min((playerStats.rankedStats['2v2'].seasonWins % 10) * 10, 100)}%` }}
-                    ></div>
+                    All ranked wins count toward season rewards
                   </div>
                   <div className="text-xs text-gray-400">
-                    {10 - (playerStats.rankedStats['2v2'].seasonWins % 10)} wins until next reward
+                    Progress is shown above (1v1 + 2v2 combined)
                   </div>
                 </div>
               </div>

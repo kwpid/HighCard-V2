@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Users } from "lucide-react";
+import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users } from "lucide-react";
 
 const Menu = () => {
-  const { setCurrentScreen, setGameMode, setModalsOpen } = useGameStore();
+  const { setCurrentScreen, setSelectedMode, setModalsOpen } = useGameStore();
   const { playerStats, currentSeason } = usePlayerStore();
   const [timeToNextSeason, setTimeToNextSeason] = useState("");
 
@@ -36,10 +36,28 @@ const Menu = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleGameMode = (mode: 'casual' | 'ranked', gameType: '1v1' | '2v2') => {
-    setGameMode(mode, gameType);
-    setCurrentScreen('queue');
+  const handleModeSelect = (mode: 'casual' | 'ranked') => {
+    setSelectedMode(mode);
+    setCurrentScreen('mode-select');
   };
+
+  const getHighestRank = () => {
+    const rank1v1 = playerStats.rankedStats['1v1'];
+    const rank2v2 = playerStats.rankedStats['2v2'];
+    
+    if (rank1v1.mmr >= rank2v2.mmr) {
+      return { rank: rank1v1.currentRank, division: rank1v1.division, mmr: rank1v1.mmr };
+    } else {
+      return { rank: rank2v2.currentRank, division: rank2v2.division, mmr: rank2v2.mmr };
+    }
+  };
+
+  const getRankColor = (rank: string | null) => {
+    if (!rank) return 'text-gray-400';
+    return `rank-${rank.toLowerCase().replace(' ', '-')}`;
+  };
+
+  const highestRank = getHighestRank();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-8">
@@ -53,51 +71,96 @@ const Menu = () => {
         </div>
       </div>
 
+      {/* Season Rewards Progress */}
+      <div className="w-full max-w-2xl mb-8 bg-gray-800 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Star size={24} className="text-yellow-400" />
+          <h3 className="text-lg font-semibold text-white">Season Rewards Progress</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="text-sm text-gray-400 mb-2">
+              Total Season Wins: {playerStats.totalSeasonWins}
+            </div>
+            <div className="w-full bg-gray-600 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((playerStats.totalSeasonWins % 10) * 10, 100)}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              {10 - (playerStats.totalSeasonWins % 10)} wins until next reward
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-sm text-gray-400 mb-1">Highest Rank</div>
+            <div className={`text-lg font-bold ${getRankColor(highestRank.rank)}`}>
+              {highestRank.rank || 'Unranked'} {highestRank.division || ''}
+            </div>
+            <div className="text-sm text-gray-400">
+              {highestRank.mmr} MMR
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Menu Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full max-w-2xl">
         {/* Casual Button */}
-        <div className="space-y-2">
-          <button
-            onClick={() => handleGameMode('casual', '1v1')}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 
-                     text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 
-                     hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3"
-          >
-            <Play size={24} />
-            Casual 1v1
-          </button>
-          <button
-            onClick={() => handleGameMode('casual', '2v2')}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 
-                     text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 
-                     hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2 text-sm"
-          >
-            <Users size={20} />
-            Casual 2v2
-          </button>
-        </div>
+        <button
+          onClick={() => handleModeSelect('casual')}
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 
+                   text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
+                   hover:scale-105 hover:shadow-xl"
+        >
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Play size={32} />
+            <span className="text-2xl">Casual</span>
+          </div>
+          <div className="text-sm opacity-80">
+            Practice and have fun
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div>1v1: {playerStats.casualStats['1v1'].wins}W/{playerStats.casualStats['1v1'].losses}L</div>
+            </div>
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div>2v2: {playerStats.casualStats['2v2'].wins}W/{playerStats.casualStats['2v2'].losses}L</div>
+            </div>
+          </div>
+        </button>
 
         {/* Ranked Button */}
-        <div className="space-y-2">
-          <button
-            onClick={() => handleGameMode('ranked', '1v1')}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
-                     text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 
-                     hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 neon-glow"
-          >
-            <Trophy size={24} />
-            Ranked 1v1
-          </button>
-          <button
-            onClick={() => handleGameMode('ranked', '2v2')}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
-                     text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 
-                     hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2 text-sm neon-glow"
-          >
-            <Users size={20} />
-            Ranked 2v2
-          </button>
-        </div>
+        <button
+          onClick={() => handleModeSelect('ranked')}
+          className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
+                   text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
+                   hover:scale-105 hover:shadow-xl neon-glow"
+        >
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Trophy size={32} />
+            <span className="text-2xl">Ranked</span>
+          </div>
+          <div className="text-sm opacity-80">
+            Competitive play with rankings
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div className={`${getRankColor(playerStats.rankedStats['1v1'].currentRank)}`}>
+                1v1: {playerStats.rankedStats['1v1'].currentRank || 'Unranked'}
+              </div>
+              <div>{playerStats.rankedStats['1v1'].mmr} MMR</div>
+            </div>
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div className={`${getRankColor(playerStats.rankedStats['2v2'].currentRank)}`}>
+                2v2: {playerStats.rankedStats['2v2'].currentRank || 'Unranked'}
+              </div>
+              <div>{playerStats.rankedStats['2v2'].mmr} MMR</div>
+            </div>
+          </div>
+        </button>
       </div>
 
       {/* Secondary Buttons */}
@@ -154,19 +217,6 @@ const Menu = () => {
         </button>
       </div>
 
-      {/* Current Rank Display */}
-      {playerStats.rankedStats['1v1'].currentRank && (
-        <div className="mt-8 text-center">
-          <div className="text-sm text-gray-400 mb-1">Current 1v1 Rank</div>
-          <div className={`text-xl font-bold rank-${playerStats.rankedStats['1v1'].currentRank.toLowerCase()}`}>
-            {playerStats.rankedStats['1v1'].currentRank} {playerStats.rankedStats['1v1'].division && 
-            playerStats.rankedStats['1v1'].division !== 'I' ? playerStats.rankedStats['1v1'].division : ''}
-          </div>
-          <div className="text-sm text-gray-400">
-            {playerStats.rankedStats['1v1'].mmr} MMR
-          </div>
-        </div>
-      )}
     </div>
   );
 };

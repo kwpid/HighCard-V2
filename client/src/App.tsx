@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useGameStore } from "./lib/stores/useGameStore";
 import { usePlayerStore } from "./lib/stores/usePlayerStore";
 import Menu from "./components/Menu";
+import ModeSelectScreen from "./components/ModeSelectScreen";
 import GameBoard from "./components/GameBoard";
 import QueueScreen from "./components/QueueScreen";
 import StatsModal from "./components/StatsModal";
@@ -22,6 +23,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white font-inter">
       {currentScreen === 'menu' && <Menu />}
+      {currentScreen === 'mode-select' && <ModeSelectScreen />}
       {currentScreen === 'queue' && <QueueScreen />}
       {currentScreen === 'game' && <GameBoard />}
       
