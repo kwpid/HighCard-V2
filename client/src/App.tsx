@@ -8,17 +8,21 @@ import QueueScreen from "./components/QueueScreen";
 import StatsModal from "./components/StatsModal";
 import SettingsModal from "./components/SettingsModal";
 import TutorialModal from "./components/TutorialModal";
+import LeaderboardModal from "./components/LeaderboardModal";
+import { useLeaderboardStore } from "./lib/stores/useLeaderboardStore";
 import "@fontsource/inter";
 
 function App() {
   const { currentScreen, initializeGame } = useGameStore();
   const { initializePlayer } = usePlayerStore();
+  const { initializeLeaderboards } = useLeaderboardStore();
 
   useEffect(() => {
     // Initialize game and player data from localStorage
     initializeGame();
     initializePlayer();
-  }, [initializeGame, initializePlayer]);
+    initializeLeaderboards();
+  }, [initializeGame, initializePlayer, initializeLeaderboards]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-inter">
@@ -31,6 +35,7 @@ function App() {
       <StatsModal />
       <SettingsModal />
       <TutorialModal />
+      <LeaderboardModal />
     </div>
   );
 }

@@ -4,12 +4,62 @@ import { GameCard, Player } from './gameLogic';
 
 export type AIPersonality = 'aggressive' | 'conservative' | 'adaptive' | 'random';
 
+export interface AIOpponent {
+  name: string;
+  personality: AIPersonality;
+  difficulty: number; // 1-10 scale
+  mmr?: number;
+  isLeaderboardAI?: boolean;
+}
+
 export interface AIConfig {
   personality: AIPersonality;
   difficulty: number; // 1-10 scale
   powerUpThreshold: number; // Round threshold for using power-ups
   bluffChance: number; // Chance to play suboptimally to confuse opponent
 }
+
+// Generate AI opponent with leaderboard integration
+export const generateAIOpponent = (playerMMR: number, gameMode: '1v1' | '2v2'): AIOpponent => {
+  // Try to get leaderboard opponent first (if player is high MMR)
+  if (typeof window !== 'undefined') {
+    try {
+      const { getOpponentByMMR } = require('./stores/useLeaderboardStore').useLeaderboardStore.getState();
+      const leaderboardOpponent = getOpponentByMMR(playerMMR, gameMode);
+      
+      if (leaderboardOpponent) {
+        return {
+          name: leaderboardOpponent.name,
+          personality: leaderboardOpponent.aiPersonality || 'adaptive',
+          difficulty: Math.min(10, Math.floor((leaderboardOpponent.mmr || 1200) / 120)),
+          mmr: leaderboardOpponent.mmr,
+          isLeaderboardAI: true
+        };
+      }
+    } catch (error) {
+      console.error('Error getting leaderboard opponent:', error);
+    }
+  }
+  
+  // Generate regular AI opponent
+  const personalities: AIPersonality[] = ['aggressive', 'conservative', 'adaptive', 'random'];
+  const personality = personalities[Math.floor(Math.random() * personalities.length)];
+  const difficulty = Math.max(1, Math.min(10, Math.floor(playerMMR / 100) + Math.floor(Math.random() * 3) - 1));
+  const aiMMR = playerMMR + Math.floor(Math.random() * 200) - 100; // ±100 MMR
+  
+  const aiNames = [
+    "CardBot", "ChampAI", "ProPlayer", "EliteBot", "SkillfulAI", 
+    "MasterBot", "TacticalAI", "StrategicBot", "CompetitiveAI", "VictoryBot"
+  ];
+  
+  return {
+    name: aiNames[Math.floor(Math.random() * aiNames.length)],
+    personality,
+    difficulty,
+    mmr: Math.max(0, aiMMR),
+    isLeaderboardAI: false
+  };
+};
 
 // Generate AI configuration based on MMR or difficulty
 export const generateAIConfig = (difficulty: number = 5, mmr: number = 400): AIConfig => {

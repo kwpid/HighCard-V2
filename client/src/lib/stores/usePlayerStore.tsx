@@ -32,11 +32,13 @@ interface PlayerStats {
 interface PlayerState {
   playerStats: PlayerStats;
   currentSeason: number;
+  username: string;
   
   // Actions
-  updateStats: (gameMode: GameMode, gameType: GameType, won: boolean) => void;
+  updateStats: (gameMode: GameMode, gameType: GameType, won: boolean, opponentMMR?: number) => void;
   initializePlayer: () => void;
   resetSeasonStats: () => void;
+  setUsername: (username: string) => void;
 }
 
 const defaultStats: PlayerStats = {
@@ -60,8 +62,9 @@ const defaultStats: PlayerStats = {
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   playerStats: defaultStats,
   currentSeason: 0, // Pre-season
+  username: "Player",
 
-  updateStats: (gameMode, gameType, won) => {
+  updateStats: (gameMode, gameType, won, opponentMMR) => {
     set((state) => {
       const newStats = { ...state.playerStats };
       
@@ -102,7 +105,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           }
         } else {
           // Regular ranked match
-          const mmrChange = calculateMMRChange(won, rankedStats.mmr);
+          const mmrChange = calculateMMRChange(won, rankedStats.mmr, opponentMMR || rankedStats.mmr);
           rankedStats.mmr = Math.max(0, rankedStats.mmr + mmrChange);
           
           // Update rank based on new MMR
@@ -115,12 +118,25 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       // Save to localStorage
       localStorage.setItem('highcard-player-stats', JSON.stringify(newStats));
       
+      // Update leaderboards if in browser environment
+      if (typeof window !== 'undefined') {
+        const { updatePlayerOnLeaderboards } = require('./useLeaderboardStore').useLeaderboardStore.getState();
+        updatePlayerOnLeaderboards(get().username, newStats);
+      }
+      
       return { playerStats: newStats };
     });
   },
 
+  setUsername: (username) => {
+    set({ username });
+    localStorage.setItem('highcard-username', username);
+  },
+
   initializePlayer: () => {
     const savedStats = localStorage.getItem('highcard-player-stats');
+    const savedUsername = localStorage.getItem('highcard-username');
+    
     if (savedStats) {
       try {
         const parsedStats = JSON.parse(savedStats);
@@ -131,6 +147,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       }
     } else {
       set({ playerStats: defaultStats });
+    }
+
+    if (savedUsername) {
+      set({ username: savedUsername });
     }
 
     // Calculate current season (Pre-season until September 1, 2025)

@@ -1,17 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
-import { X, Settings, Volume2, VolumeX } from "lucide-react";
+import { usePlayerStore } from "../lib/stores/usePlayerStore";
+import { X, Settings, Volume2, VolumeX, User } from "lucide-react";
 
 const SettingsModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
+  const { username, setUsername } = usePlayerStore();
+  const [newUsername, setNewUsername] = useState(username);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicVolume, setMusicVolume] = useState(50);
   const [sfxVolume, setSfxVolume] = useState(70);
   const [animations, setAnimations] = useState(true);
 
+  useEffect(() => {
+    setNewUsername(username);
+  }, [username]);
+
   if (!modalsOpen.settings) return null;
 
   const handleSave = () => {
+    // Save username if changed and valid
+    if (newUsername !== username && newUsername.length >= 1 && newUsername.length <= 20) {
+      setUsername(newUsername);
+    }
+
     // Save settings to localStorage
     const settings = {
       soundEnabled,
@@ -22,6 +34,9 @@ const SettingsModal = () => {
     localStorage.setItem('highcard-settings', JSON.stringify(settings));
     setModalsOpen('settings', false);
   };
+
+  const isUsernameValid = newUsername.length >= 1 && newUsername.length <= 20;
+  const usernameChanged = newUsername !== username;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -42,6 +57,38 @@ const SettingsModal = () => {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* Player Settings */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <User size={20} />
+              Player
+            </h3>
+            
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">
+                Username (1-20 characters)
+              </label>
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                maxLength={20}
+                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                  isUsernameValid ? 'border-gray-600' : 'border-red-500'
+                }`}
+                placeholder="Enter your username"
+              />
+              <div className="flex justify-between items-center mt-1">
+                <span className={`text-xs ${isUsernameValid ? 'text-gray-400' : 'text-red-400'}`}>
+                  {newUsername.length}/20 characters
+                </span>
+                {usernameChanged && isUsernameValid && (
+                  <span className="text-xs text-emerald-400">Username will be updated</span>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Audio Settings */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -142,9 +189,14 @@ const SettingsModal = () => {
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-lg transition-all duration-300"
+            disabled={!isUsernameValid}
+            className={`px-6 py-2 rounded-lg transition-colors ${
+              isUsernameValid 
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            }`}
           >
-            Save Settings
+            Save Changes
           </button>
         </div>
       </div>

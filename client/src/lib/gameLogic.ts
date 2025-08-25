@@ -67,26 +67,40 @@ export const getRankFromMMR = (mmr: number): { rank: string; division: string | 
   return { rank: 'Bronze', division: 'III' };
 };
 
-// Calculate MMR change after a match
-export const calculateMMRChange = (won: boolean, currentMMR: number): number => {
-  const baseChange = 25;
-  let change = baseChange;
+// Calculate MMR change after a match using proper ELO formula
+export const calculateMMRChange = (won: boolean, playerMMR: number, opponentMMR: number = playerMMR): number => {
+  const K_FACTOR_MAX = 22;
+  const K_FACTOR_MIN = 6;
   
-  // Larger changes for lower MMR players
-  if (currentMMR < 200) {
-    change = 35;
-  } else if (currentMMR < 400) {
-    change = 30;
+  // Calculate K-factor based on player's MMR (higher MMR = smaller changes)
+  let kFactor = K_FACTOR_MAX;
+  if (playerMMR >= 1200) { // Grand Champion
+    kFactor = K_FACTOR_MIN;
+  } else if (playerMMR >= 1000) { // Champion
+    kFactor = 8;
+  } else if (playerMMR >= 800) { // Diamond
+    kFactor = 12;
+  } else if (playerMMR >= 600) { // Platinum
+    kFactor = 16;
+  } else if (playerMMR >= 400) { // Gold
+    kFactor = 20;
   }
   
-  // Smaller changes for very high MMR players
-  if (currentMMR > 1000) {
-    change = 15;
-  } else if (currentMMR > 800) {
-    change = 20;
+  // Calculate expected score using ELO formula
+  const expectedScore = 1 / (1 + Math.pow(10, (opponentMMR - playerMMR) / 400));
+  
+  // Actual score (1 for win, 0 for loss)
+  const actualScore = won ? 1 : 0;
+  
+  // Calculate MMR change
+  const mmrChange = Math.round(kFactor * (actualScore - expectedScore));
+  
+  // Ensure minimum change of 1 point (to prevent stagnation)
+  if (mmrChange === 0) {
+    return won ? 1 : -1;
   }
   
-  return won ? change : -Math.floor(change * 0.8);
+  return mmrChange;
 };
 
 // Generate random cards for a player
