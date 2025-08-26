@@ -141,10 +141,10 @@ const TutorialModal = () => {
           <div className="bg-gray-700 p-2 rounded text-center">
             <RankImage rankName="Grand Champion" division="I" size="sm" showText={true} />
           </div>
-          <div className="bg-gray-700 p-2 rounded text-center">
-            <RankImage rankName="Supersonic Legend" size="sm" showText={true} />
-            <div className="text-[11px] text-gray-300 mt-1">Special prestige rank for elite players</div>
-          </div>
+                     <div className="bg-gray-700 p-2 rounded text-center">
+             <RankImage rankName="Card Legend" size="sm" showText={true} />
+             <div className="text-[11px] text-gray-300 mt-1">Special prestige rank for elite players</div>
+           </div>
           
           <div className="space-y-3">
             <div className="bg-yellow-900/20 border border-yellow-400 rounded-lg p-3">

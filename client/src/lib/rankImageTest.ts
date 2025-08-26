@@ -17,7 +17,7 @@ const testRankPaths = () => {
   console.log('Grand Champion I:', getRankImagePath('Grand Champion', 'I'));
   
   // Test ranks without divisions
-  console.log('Supersonic Legend:', getRankImagePath('Supersonic Legend', null));
+  console.log('Card Legend:', getRankImagePath('Card Legend', null));
   
   // Test edge cases
   console.log('Empty rank:', getRankImagePath('', 'I'));

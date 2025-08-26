@@ -20,7 +20,7 @@ export { getLocalStorage, setLocalStorage };
  */
 export const getRankImagePath = (rankName: string, division: string | null): string => {
   if (!division) {
-    // For ranks without divisions (like Supersonic Legend)
+    // For ranks without divisions (like Card Legend)
     const rankKey = rankName.toLowerCase().replace(' ', '-');
     return `/ranks/${rankKey}.png`;
   }

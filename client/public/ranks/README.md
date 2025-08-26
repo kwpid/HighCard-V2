@@ -26,7 +26,7 @@ Place your rank images in this directory. The naming convention is:
 - `grand-champion-div-iii.png` - Grand Champion Division III
 
 ## Ranks without Divisions:
-- `supersonic-legend.png` - Supersonic Legend
+- `card-legend.png` - Card Legend
 
 ## Image Requirements:
 - Format: PNG (recommended) or JPG

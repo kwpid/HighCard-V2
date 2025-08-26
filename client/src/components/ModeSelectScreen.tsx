@@ -261,6 +261,7 @@ const ModeSelectScreen = () => {
                           rankName={rank.name} 
                           size="sm"
                           className="flex-shrink-0"
+                          showHighestDivision={true}
                         />
                         <div className="text-xs text-gray-400">MMR {mmrLabel}</div>
                       </div>

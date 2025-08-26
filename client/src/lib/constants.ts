@@ -79,7 +79,7 @@ export const RANKS = [
     color: '#ff006e'
   },
   {
-    name: 'Supersonic Legend',
+    name: 'Card Legend',
     divisions: [],
     mmrRange: { min: 1600, max: Infinity },
     color: '#ffffff'

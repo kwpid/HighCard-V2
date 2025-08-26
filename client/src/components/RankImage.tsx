@@ -1,5 +1,6 @@
 import React from 'react';
 import { getRankImagePath } from '../lib/utils';
+import { RANKS } from '../lib/constants';
 
 interface RankImageProps {
   rankName: string;
@@ -7,6 +8,7 @@ interface RankImageProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   showText?: boolean;
+  showHighestDivision?: boolean; // New prop for showing highest division when no specific division is provided
 }
 
 const RankImage: React.FC<RankImageProps> = ({ 
@@ -14,7 +16,8 @@ const RankImage: React.FC<RankImageProps> = ({
   division, 
   size = 'md', 
   className = '',
-  showText = false 
+  showText = false,
+  showHighestDivision = false
 }) => {
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -28,7 +31,17 @@ const RankImage: React.FC<RankImageProps> = ({
     lg: 'text-base'
   };
 
-  const imagePath = getRankImagePath(rankName, division);
+  // For reference display (like rank ladder), show highest division if no specific division is provided
+  let displayDivision = division;
+  if (showHighestDivision && !division) {
+    // Get the highest division for this rank
+    const rankData = RANKS.find(r => r.name === rankName);
+    if (rankData && rankData.divisions.length > 0) {
+      displayDivision = rankData.divisions[rankData.divisions.length - 1]; // Last division is highest (III)
+    }
+  }
+  
+  const imagePath = getRankImagePath(rankName, displayDivision);
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     // Fallback to colored text if image fails to load
