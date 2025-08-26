@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getRankFromMMR, calculateMMRChange } from "../gameLogic";
+import { getRankFromMMR, calculateMMRChange, RANKS } from "../gameLogic";
 import { useLeaderboardStore } from "./useLeaderboardStore";
 import { calculateXPGain, checkLevelUp, calculateXPProgress } from "../xpSystem";
 import { levelTitles } from "../titles";
@@ -52,6 +52,7 @@ interface PlayerState {
   resetAllStats: () => void;
   equipTitle: (id: string | null) => void;
   addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }) => boolean;
+  getSeasonRewardStatus: () => { currentTier: string; nextTier: string | null; winsInTier: number; winsNeeded: number };
 }
 
 const defaultStats: PlayerStats = {
@@ -160,7 +161,7 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
             rankedStats.highestRank = rank;
           } else {
             // Promote highestRank if this rank is higher in the ladder
-            const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion'];
+            const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion','Clicker Legend'];
             const currentIdx = ladder.indexOf(rankedStats.highestRank);
             const newIdx = ladder.indexOf(rank);
             if (newIdx > currentIdx) rankedStats.highestRank = rank;
@@ -272,6 +273,23 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     set({ playerStats: updated });
     localStorage.setItem('highcard-player-stats', JSON.stringify(updated));
     return true;
+  },
+
+  getSeasonRewardStatus: () => {
+    const { playerStats } = get();
+    const totalWins = playerStats.totalSeasonWins;
+    const rankIdx = (rank: string | null) => Math.max(0, RANKS.indexOf(rank || 'Bronze'));
+    const capIndex = Math.max(
+      rankIdx(playerStats.rankedStats['1v1'].currentRank),
+      rankIdx(playerStats.rankedStats['2v2'].currentRank)
+    );
+    const tiersEarned = Math.min(capIndex, Math.floor(totalWins / 10));
+    const currentTier = RANKS[Math.max(0, tiersEarned)] || 'Bronze';
+    const nextTierIndex = Math.min(capIndex, tiersEarned + 1);
+    const nextTier = nextTierIndex > tiersEarned ? RANKS[nextTierIndex] : null;
+    const winsInTier = totalWins % 10;
+    const winsNeeded = nextTier ? Math.max(0, 10 - winsInTier) : 0;
+    return { currentTier, nextTier, winsInTier, winsNeeded };
   },
 
   getXPProgress: () => {

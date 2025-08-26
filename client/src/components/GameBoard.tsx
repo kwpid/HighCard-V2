@@ -26,7 +26,7 @@ interface Player {
 
 const GameBoard = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
-  const { updateStats, playerStats, getXPProgress } = usePlayerStore();
+  const { updateStats, playerStats, getXPProgress, currentSeason } = usePlayerStore() as any;
   
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentRound, setCurrentRound] = useState(1);
@@ -110,12 +110,13 @@ const GameBoard = () => {
   };
 
   const getRandomAITitleId = (mmr?: number): string | null => {
-    // Do not assign future or unreleased titles. Only assign pre-season rank-style labels based on MMR.
-    if (!mmr || gameMode !== 'ranked') return null;
+    // Do not assign titles during Pre-Season (season 0) or for casual
+    if (!mmr || gameMode !== 'ranked' || currentSeason === 0) return null;
     const chance = 0.7; // high chance to show for ranked AIs
     if (Math.random() > chance) return null;
     const { rank } = getRankFromMMR(mmr);
     switch (rank) {
+      case 'Clicker Legend': return 'ai_rank_clicker';
       case 'Grand Champion': return 'ai_rank_gc';
       case 'Champion': return 'ai_rank_champion';
       case 'Diamond': return 'ai_rank_diamond';
@@ -125,6 +126,36 @@ const GameBoard = () => {
       case 'Bronze':
       default:
         return 'ai_rank_bronze';
+    }
+  };
+
+  const chooseAICard = (availableCards: GameCard[], mmr?: number): GameCard => {
+    const pool = availableCards;
+    if (pool.length === 0) return players[1].cards.find(c => !c.used) as GameCard;
+    const sorted = [...pool].sort((a, b) => b.value - a.value);
+    const rand = (arr: GameCard[]) => arr[Math.floor(Math.random() * arr.length)];
+    const tier = mmr ?? 450;
+    if (tier >= 1600) {
+      // Clicker Legend: almost always play best
+      return Math.random() < 0.95 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.2))));
+    } else if (tier >= 1200) {
+      // GC: almost always play best
+      return Math.random() < 0.9 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.3))));
+    } else if (tier >= 1000) {
+      // Champion
+      return Math.random() < 0.8 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.4))));
+    } else if (tier >= 800) {
+      // Diamond
+      return Math.random() < 0.7 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.5))));
+    } else if (tier >= 600) {
+      // Platinum
+      return Math.random() < 0.6 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.6))));
+    } else if (tier >= 400) {
+      // Gold
+      return Math.random() < 0.5 ? sorted[0] : rand(sorted);
+    } else {
+      // Bronze/Silver: mostly random
+      return rand(sorted);
     }
   };
 
@@ -209,6 +240,7 @@ const GameBoard = () => {
       'ai_rank_diamond': { text: 'PRE-SEASON DIAMOND', className: 'text-cyan-300' },
       'ai_rank_champion': { text: 'PRE-SEASON CHAMPION', className: 'text-purple-300' },
       'ai_rank_gc': { text: 'PRE-SEASON GRAND CHAMPION', className: 'text-pink-300' },
+      'ai_rank_clicker': { text: 'PRE-SEASON CLICKER LEGEND', className: 'text-white' },
     };
     const info = map[titleId] || { text: titleId, className: 'text-gray-200' };
     return { element: (<span className={`${info.className}`}>{info.text}</span>) };
@@ -240,7 +272,7 @@ const GameBoard = () => {
     
     for (let i = 1; i < players.length; i++) {
       const availableCards = players[i].cards.filter(c => !c.used);
-      const aiChoice = availableCards[Math.floor(Math.random() * availableCards.length)];
+      const aiChoice = chooseAICard(availableCards, players[i].mmr);
       newRoundCards[i.toString()] = aiChoice;
     }
     
