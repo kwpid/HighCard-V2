@@ -10,6 +10,8 @@ interface ModalsState {
   tutorial: boolean;
   inventory: boolean;
   leaderboards: boolean;
+  news: boolean;
+  rewards: boolean;
 }
 
 interface GameState {
@@ -42,6 +44,8 @@ export const useGameStore = create<GameState>((set: any, get: any) => ({
     tutorial: false,
     inventory: false,
     leaderboards: false,
+    news: false,
+    rewards: false,
   },
   rewardQueue: [],
   rewardModalOpen: false,

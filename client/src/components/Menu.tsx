@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users, Lock } from "lucide-react";
+import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users, Lock, Newspaper } from "lucide-react";
 import { getRankFromMMR } from "../lib/gameLogic";
 import XPProgress from "./XPProgress";
+import { getFeaturedNews } from "../lib/news";
 
 const Menu = () => {
   const { setCurrentScreen, setSelectedMode, setModalsOpen } = useGameStore();
-  const { playerStats, currentSeason, getXPProgress } = usePlayerStore();
+  const { playerStats, currentSeason, getXPProgress, username } = usePlayerStore();
   const [timeToNextSeason, setTimeToNextSeason] = useState("");
+  const featuredNews = getFeaturedNews();
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -63,6 +65,19 @@ const Menu = () => {
     return `rank-${rank.toLowerCase().replace(' ', '-')}`;
   };
 
+  const getTitleDisplay = (titleId?: string | null) => {
+    if (!titleId) return null;
+    const { playerStats } = usePlayerStore.getState();
+    const title = playerStats.ownedTitles?.find(t => t.id === titleId);
+    if (!title) return null;
+    
+    return (
+      <span className={`text-xs ${title.color || 'text-gray-200'} ${title.glow ? 'animate-pulse' : ''}`}>
+        {title.name}
+      </span>
+    );
+  };
+
   const highestRank = getHighestRank();
   const maxPeakMMR = Math.max(
     playerStats.rankedStats['1v1'].peakMMR || 0,
@@ -72,6 +87,26 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-8">
+      {/* Player Card - Top Left */}
+      <div className="absolute top-6 left-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-lg">
+              {username.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <div className="text-white font-semibold">{username}</div>
+            {getTitleDisplay(playerStats.equippedTitleId)}
+          </div>
+        </div>
+      </div>
+
+      {/* XP Progress - Top Right */}
+      <div className="absolute top-6 right-6 w-48">
+        <XPProgress xpProgress={getXPProgress()} showDetails={false} />
+      </div>
+
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-6xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent mb-4">
@@ -81,6 +116,58 @@ const Menu = () => {
           Season {currentSeason} • Next season in: <span className="text-emerald-400 font-semibold">{timeToNextSeason}</span>
         </div>
       </div>
+
+      {/* News Section */}
+      {featuredNews.length > 0 && (
+        <div className="w-full max-w-2xl mb-8">
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Newspaper size={24} className="text-blue-400" />
+                <h3 className="text-lg font-semibold text-white">Latest News</h3>
+              </div>
+              <button
+                onClick={() => setModalsOpen('news', true)}
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                View All →
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {featuredNews.slice(0, 2).map((news) => (
+                <div
+                  key={news.id}
+                  onClick={() => setModalsOpen('news', true)}
+                  className="bg-gray-750 rounded-lg p-3 cursor-pointer transition-all duration-300 hover:bg-gray-700 border border-gray-600"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="text-gray-400 text-lg">📰</div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-600 text-yellow-100">
+                          FEATURED
+                        </span>
+                        <span className="text-gray-400 text-xs">
+                          {new Date(news.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <h4 className="text-white font-medium text-sm line-clamp-1">
+                        {news.title}
+                      </h4>
+                      <p className="text-gray-300 text-xs line-clamp-1">
+                        {news.summary}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* XP Progress */}
       <div className="w-full max-w-2xl mb-6">
@@ -218,6 +305,15 @@ const Menu = () => {
         >
           <Settings size={18} />
           Settings
+        </button>
+
+        <button
+          onClick={() => setModalsOpen('news', true)}
+          className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg 
+                   transition-all duration-300 hover:scale-105 flex items-center gap-2"
+        >
+          <Newspaper size={18} />
+          News
         </button>
 
         <button

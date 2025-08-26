@@ -11,6 +11,7 @@ import TutorialModal from "./components/TutorialModal";
 import LeaderboardModal from "./components/LeaderboardModal";
 import InventoryModal from "./components/InventoryModal";
 import RewardModal from "./components/RewardModal";
+import NewsModal from "./components/NewsModal";
 import { useLeaderboardStore } from "./lib/stores/useLeaderboardStore";
 import "@fontsource/inter";
 
@@ -56,6 +57,7 @@ function App() {
       {/* <LeaderboardModal /> */}
       <InventoryModal />
       <RewardModal />
+      <NewsModal />
     </div>
   );
 }
