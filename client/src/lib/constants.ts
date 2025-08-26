@@ -39,65 +39,129 @@ export const RANKS = [
   {
     name: 'Bronze',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 0, max: 199 },
+    mmrRange: { min: 0, max: 399 },
     color: '#cd7f32'
   },
   {
     name: 'Silver',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 200, max: 399 },
+    mmrRange: { min: 400, max: 599 },
     color: '#c0c0c0'
   },
   {
     name: 'Gold',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 400, max: 599 },
+    mmrRange: { min: 600, max: 799 },
     color: '#ffd700'
   },
   {
     name: 'Platinum',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 600, max: 799 },
+    mmrRange: { min: 800, max: 999 },
     color: '#e5e4e2'
   },
   {
     name: 'Diamond',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 800, max: 999 },
+    mmrRange: { min: 1000, max: 1199 },
     color: '#b9f2ff'
   },
   {
     name: 'Champion',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 1000, max: 1199 },
+    mmrRange: { min: 1200, max: 1399 },
     color: '#9d4edd'
   },
   {
     name: 'Grand Champion',
     divisions: ['I', 'II', 'III'],
-    mmrRange: { min: 1200, max: 1599 },
+    mmrRange: { min: 1400, max: 1599 },
     color: '#ff006e'
   },
   {
-    name: 'Card Legend',
+    name: 'Supersonic Legend',
     divisions: [],
     mmrRange: { min: 1600, max: Infinity },
     color: '#ffffff'
   },
 ] as const;
 
+
 export const AI_NAMES = {
   regular: [
-    'Alex', 'Jordan', 'Casey', 'Morgan', 'Riley', 'Avery', 'Quinn', 'Sage',
-    'Phoenix', 'River', 'Skylar', 'Rowan', 'Ember', 'Nova', 'Zephyr', 'Orion',
-    'Blake', 'Cameron', 'Drew', 'Finley', 'Harper', 'Hayden', 'Jamie', 'Kai',
-    'Lane', 'Logan', 'Marley', 'Parker', 'Reese', 'Scout', 'Taylor', 'Vale'
+    "zippersman","xxkirtoxx1","togoz","MyWorld_21","JuicyJamz","qozz","JuiceWrldMoonlight","boopsma1","UnstoppableAnarchy","smollost43432X","Xx_MilkShake17Xx","vibeless19","x23","flwr","powf","sinless","mattyboy784","xkirt0","BigHeavy00","JpingMagz","easilymossedkid20","unknown_magz","284962G7","juli23_zae","J_Y3E","easilymossedkid19","uqz","poofusure","QTW1NN","circuIator","grandsontoldmetoplay","RoboStud22","GlobalWRA893","gaslightying","ii_cantsackii","ItsMeDooDoos","Bxx_Duck","XxFrench_Fr1ezX","Revruics","rxd_deer","lqzt_sou1z","arrowstops","HeartlessTierra","thefabisasoXD","ii_cantrunnerii","roblox_user_78045342","unlocked1_2","jalenHurts_RB7","QzccMustDestroy","globalseller","RisingPhoenix","snagz","umppz2",
+      "LilTycoon94","EpicGamer_072","xXBuildBroXx","AquaDude33","FlamezKnight","CookieNomNom","PixelSurge","HyperNova_99","TacoSlayer42","NinjaSocks","DankDestroyer","SlippyPenguin7","ToxicDriftX","CoolBanana_05","WolfStorm88","Jumpman_14","EliteSniper_RBLX","KrazyKoala123","CodeRedYT","MysticSlayer", "niko", "shadowfox91", "lexa_belle", "icebreaker7", "mikey.exe",
+                              "serotonin.exe", "quietstorm", "eliott_", "kevn", "darko777",
+                              "nova_prime", "jakefromstate", "finnski", "yukinochan", "draycoz",
+                              "t0mmygun", "itsjustben", "koalatee", "zypherion", "oatsnbeans",
+                              "noahb_", "ghostbyte", "sugarc0de", "tristan.x", "kyralight",
+                              "sleeplessjoe", "mechamike", "flickzone", "toastymars", "caffeinex",
+                              "lunarshift", "chromafox", "bleachbunni", "hextasyy", "neonharbor",
+                              "viktorwave", "jackal.v2", "zeroiq_", "th3zookeeper", "halcyoncore",
+                              "creepdaddy", "l33tcoder", "dyllbot", "gloomydan", "syrup.exe",
+                              "vanta_rider", "ronintheory", "nocturnex", "rowboatjim", "yeehawdaddy",
+                              "zippersman","xxkirtoxx1","togoz","MyWorld_21","JuicyJamz","qozz","JuiceWrldMoonlight","boopsma1","UnstoppableAnarchy","smollost43432X","Xx_MilkShake17Xx","vibeless19","x23","flwr","powf","sinless","mattyboy784","xkirt0","BigHeavy00","JpingMagz","easilymossedkid20","unknown_magz","284962G7","juli23_zae","J_Y3E","easilymossedkid19","uqz","poofusure","QTW1NN","circuIator","grandsontoldmetoplay","RoboStud22","GlobalWRA893","gaslightying","ii_cantsackii","ItsMeDooDoos","Bxx_Duck","XxFrench_Fr1ezX","Revruics","rxd_deer","lqzt_sou1z","arrowstops","HeartlessTierra","thefabisasoXD","ii_cantrunnerii","roblox_user_78045342","unlocked1_2","jalenHurts_RB7","QzccMustDestroy","globalseller","RisingPhoenix","snagz","umppz2",
+                              "LilTycoon94","EpicGamer_072","xXBuildBroXx","AquaDude33","FlamezKnight","CookieNomNom","PixelSurge","HyperNova_99","TacoSlayer42","NinjaSocks","DankDestroyer","SlippyPenguin7","ToxicDriftX","CoolBanana_05","WolfStorm88","Jumpman_14","EliteSniper_RBLX","KrazyKoala123","CodeRedYT","MysticSlayer"
   ],
   highRanked: [
-    'Phantom', 'Shadow', 'Blaze', 'Storm', 'Viper', 'Titan', 'Nexus', 'Apex',
-    'Eclipse', 'Quantum', 'Vertex', 'Matrix', 'Cipher', 'Vector', 'Prism', 'Flux',
-    'Zenith', 'Crimson', 'Raven', 'Frost', 'Thunder', 'Void', 'Neon', 'Chrome',
-    'Onyx', 'Pulse', 'Razor', 'Saber', 'Talon', 'Wraith', 'Zorro', 'Kraken'
+    "L",
+    "kupid",
+    "l0st",
+    "jayleng",
+    "weweewew",
+    "RisingPhoinex87",
+    "dr.1",
+    "prot",
+    "hunt",
+    "kif",
+    "?",
+    "rivverott",
+    "1x Dark",
+    "Moxxy!",
+    "ä",
+    "شغثغخ",
+    "dark!",
+    "Vortex",
+    "FlickMaster17",
+    "r",
+    "Skywave!",
+    "R3tr0",
+    "TurboClash893",
+    "Zynk",
+    "Null_Force",
+    "Orbital",
+    "Boosted",
+    "GravyTrain",
+    "NitroNinja",
+    "PixelPlay",
+    "PhantomX",
+    "Fury",
+    "Zero!",
+    "Moonlight",
+    "QuickTap",
+    "v1per",
+    "Slugger",
+    "MetaDrift",
+    "Hydra",
+    "Neo!",
+    "ShadowDart",
+    "SlipStream",
+    "F1ick",
+    "Karma",
+    "Sparkz",
+    "Glitch",
+    "Dash7",
+    "Ignite",
+    "Cyclone",
+    "Nova",
+    "Opt1c",
+    "Viral",
+    "Stormz",
+    "PyroBlast",
+    "Bl1tz",
+    "Echo",
+    "Hover",
+    "PulseRider"
   ]
 } as const;
 
