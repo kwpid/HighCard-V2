@@ -642,7 +642,14 @@ const GameBoard = () => {
               </div>
             </div>
             
-            {/* Removed Return to Menu button per requirement */}
+            {/* Return to Menu button */}
+            <button
+              onClick={() => setCurrentScreen('menu')}
+              className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
+                       text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
+            >
+              Return to Menu
+            </button>
           </div>
         )}
 
