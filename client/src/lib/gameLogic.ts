@@ -30,15 +30,16 @@ export const RANKS = [
 export const DIVISIONS = ['I', 'II', 'III'];
 
 export const RANK_THRESHOLDS = {
-  'Bronze': { min: 0, max: 199 },
-  'Silver': { min: 200, max: 399 },
-  'Gold': { min: 400, max: 599 },
-  'Platinum': { min: 600, max: 799 },
-  'Diamond': { min: 800, max: 999 },
-  'Champion': { min: 1000, max: 1199 },
-  'Grand Champion': { min: 1200, max: 1599 },
-  'Card Legend': { min: 1600, max: Infinity }
+  'Bronze': { min: 0, max: 399 },
+  'Silver': { min: 400, max: 599 },
+  'Gold': { min: 600, max: 799 },
+  'Platinum': { min: 800, max: 999 },
+  'Diamond': { min: 1000, max: 1199 },
+  'Champion': { min: 1200, max: 1399 },
+  'Grand Champion': { min: 1400, max: 1599 },
+  'Supersonic Legend': { min: 1600, max: Infinity }
 };
+
 
 // Calculate rank and division from MMR
 export const getRankFromMMR = (mmr: number): { rank: string; division: string | null } => {
