@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { X, HelpCircle, ChevronLeft, ChevronRight, Zap, Trophy, Users } from "lucide-react";
+import RankImage from "./RankImage";
 
 const TutorialModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
@@ -119,30 +120,30 @@ const TutorialModal = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-bronze font-bold">Bronze</div>
+              <RankImage rankName="Bronze" division="I" size="sm" showText={true} />
             </div>
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-silver font-bold">Silver</div>
+              <RankImage rankName="Silver" division="II" size="sm" showText={true} />
             </div>
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-gold font-bold">Gold</div>
+              <RankImage rankName="Gold" division="III" size="sm" showText={true} />
             </div>
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-platinum font-bold">Platinum</div>
+              <RankImage rankName="Platinum" division="I" size="sm" showText={true} />
             </div>
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-diamond font-bold">Diamond</div>
+              <RankImage rankName="Diamond" division="II" size="sm" showText={true} />
             </div>
             <div className="bg-gray-700 p-2 rounded text-center">
-              <div className="rank-champion font-bold">Champion</div>
+              <RankImage rankName="Champion" division="III" size="sm" showText={true} />
             </div>
           </div>
           <div className="bg-gray-700 p-2 rounded text-center">
-            <div className="rank-grand-champion font-bold">Grand Champion</div>
+            <RankImage rankName="Grand Champion" division="I" size="sm" showText={true} />
           </div>
           <div className="bg-gray-700 p-2 rounded text-center">
-            <div className="font-bold text-white">Card Legend</div>
-            <div className="text-[11px] text-gray-300">Special prestige rank for elite players</div>
+            <RankImage rankName="Supersonic Legend" size="sm" showText={true} />
+            <div className="text-[11px] text-gray-300 mt-1">Special prestige rank for elite players</div>
           </div>
           
           <div className="space-y-3">

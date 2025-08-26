@@ -3,6 +3,7 @@ import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { ArrowLeft, Users, User, Trophy, Star, Lock } from "lucide-react";
 import { RANKS } from "../lib/constants";
 import XPProgress from "./XPProgress";
+import RankImage from "./RankImage";
 import { getRankFromMMR } from "../lib/gameLogic";
 
 const ModeSelectScreen = () => {
@@ -85,9 +86,20 @@ const ModeSelectScreen = () => {
               </div>
               <div className="text-center">
                 <div className="text-sm text-gray-400 mb-1">Highest Rank</div>
-                <div className={`text-lg font-bold ${getRankColor(highestRank.rank)}`}>
-                  {highestRank.rank || 'Unranked'} {highestRank.division || ''}
-                </div>
+                {highestRank.rank ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <RankImage 
+                      rankName={highestRank.rank} 
+                      division={highestRank.division}
+                      size="md"
+                    />
+                    <div className={`text-lg font-bold ${getRankColor(highestRank.rank)}`}>
+                      {highestRank.rank} {highestRank.division || ''}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-lg font-bold text-gray-400">Unranked</div>
+                )}
                 <div className="text-sm text-gray-400">
                   {highestRank.mmr} MMR
                 </div>
@@ -245,8 +257,11 @@ const ModeSelectScreen = () => {
                   <div key={rank.name} className="bg-gray-750 rounded p-3 border border-gray-700">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-2 h-6 rounded" style={{ backgroundColor: rank.color }} />
-                        <div className={`font-bold ${getRankColor(rank.name)}`}>{rank.name}</div>
+                        <RankImage 
+                          rankName={rank.name} 
+                          size="sm"
+                          className="flex-shrink-0"
+                        />
                         <div className="text-xs text-gray-400">MMR {mmrLabel}</div>
                       </div>
                       {isTiered && (
@@ -262,8 +277,15 @@ const ModeSelectScreen = () => {
                         {isCurrent1v1 && (
                           <div className="bg-gray-700 rounded p-2">
                             <div className="text-gray-400">Your 1v1</div>
-                            <div className="text-white font-medium">
-                              {current1v1.currentRank} {current1v1.division} · {current1v1.mmr} MMR
+                            <div className="flex items-center gap-2">
+                              <RankImage 
+                                rankName={current1v1.currentRank} 
+                                division={current1v1.division}
+                                size="sm"
+                              />
+                              <div className="text-white font-medium">
+                                {current1v1.currentRank} {current1v1.division} · {current1v1.mmr} MMR
+                              </div>
                             </div>
                             <div className="text-gray-400 mt-0.5">Peak {current1v1.peakMMR} MMR</div>
                           </div>
@@ -271,8 +293,15 @@ const ModeSelectScreen = () => {
                         {isCurrent2v2 && (
                           <div className="bg-gray-700 rounded p-2">
                             <div className="text-gray-400">Your 2v2</div>
-                            <div className="text-white font-medium">
-                              {current2v2.currentRank} {current2v2.division} · {current2v2.mmr} MMR
+                            <div className="flex items-center gap-2">
+                              <RankImage 
+                                rankName={current2v2.currentRank} 
+                                division={current2v2.division}
+                                size="sm"
+                              />
+                              <div className="text-white font-medium">
+                                {current2v2.currentRank} {current2v2.division} · {current2v2.mmr} MMR
+                              </div>
                             </div>
                             <div className="text-gray-400 mt-0.5">Peak {current2v2.peakMMR} MMR</div>
                           </div>

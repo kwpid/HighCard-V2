@@ -2,6 +2,7 @@ import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { X, TrendingUp, Trophy, Zap, Star } from "lucide-react";
 import XPProgress from "./XPProgress";
+import RankImage from "./RankImage";
 
 const StatsModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
@@ -187,21 +188,42 @@ const StatsModal = () => {
                   1v1 Ranked
                 </h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-400">Current Rank:</span>
-                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].currentRank || 'Unranked')}`}>
-                      {playerStats.rankedStats['1v1'].currentRank || 'Unranked'} {playerStats.rankedStats['1v1'].division || ''}
-                    </span>
+                    {playerStats.rankedStats['1v1'].currentRank ? (
+                      <div className="flex items-center gap-2">
+                        <RankImage 
+                          rankName={playerStats.rankedStats['1v1'].currentRank} 
+                          division={playerStats.rankedStats['1v1'].division}
+                          size="sm"
+                        />
+                        <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].currentRank)}`}>
+                          {playerStats.rankedStats['1v1'].currentRank} {playerStats.rankedStats['1v1'].division || ''}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Unranked</span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Peak MMR:</span>
                     <span className="text-white font-medium">{playerStats.rankedStats['1v1'].peakMMR || playerStats.rankedStats['1v1'].mmr}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-400">Highest Rank:</span>
-                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].highestRank || 'Unranked')}`}>
-                      {playerStats.rankedStats['1v1'].highestRank || 'Unranked'}
-                    </span>
+                    {playerStats.rankedStats['1v1'].highestRank ? (
+                      <div className="flex items-center gap-2">
+                        <RankImage 
+                          rankName={playerStats.rankedStats['1v1'].highestRank} 
+                          size="sm"
+                        />
+                        <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].highestRank)}`}>
+                          {playerStats.rankedStats['1v1'].highestRank}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Unranked</span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">MMR:</span>
@@ -240,21 +262,42 @@ const StatsModal = () => {
                   2v2 Ranked
                 </h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-400">Current Rank:</span>
-                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].currentRank || 'Unranked')}`}>
-                      {playerStats.rankedStats['2v2'].currentRank || 'Unranked'} {playerStats.rankedStats['2v2'].division || ''}
-                    </span>
+                    {playerStats.rankedStats['2v2'].currentRank ? (
+                      <div className="flex items-center gap-2">
+                        <RankImage 
+                          rankName={playerStats.rankedStats['2v2'].currentRank} 
+                          division={playerStats.rankedStats['2v2'].division}
+                          size="sm"
+                        />
+                        <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].currentRank)}`}>
+                          {playerStats.rankedStats['2v2'].currentRank} {playerStats.rankedStats['2v2'].division || ''}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Unranked</span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Peak MMR:</span>
                     <span className="text-white font-medium">{playerStats.rankedStats['2v2'].peakMMR || playerStats.rankedStats['2v2'].mmr}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-400">Highest Rank:</span>
-                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].highestRank || 'Unranked')}`}>
-                      {playerStats.rankedStats['2v2'].highestRank || 'Unranked'}
-                    </span>
+                    {playerStats.rankedStats['2v2'].highestRank ? (
+                      <div className="flex items-center gap-2">
+                        <RankImage 
+                          rankName={playerStats.rankedStats['2v2'].highestRank} 
+                          size="sm"
+                        />
+                        <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].highestRank)}`}>
+                          {playerStats.rankedStats['2v2'].highestRank}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Unranked</span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">MMR:</span>
