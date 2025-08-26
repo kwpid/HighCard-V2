@@ -1,6 +1,6 @@
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { ArrowLeft, Users, User, Trophy, Star } from "lucide-react";
+import { ArrowLeft, Users, User, Trophy, Star, Lock } from "lucide-react";
 import XPProgress from "./XPProgress";
 
 const ModeSelectScreen = () => {
@@ -96,8 +96,13 @@ const ModeSelectScreen = () => {
         <h1 className="text-4xl font-bold text-white mb-4">
           Choose Game Mode
         </h1>
-        <div className="text-xl text-gray-300">
+        <div className="text-xl text-gray-300 relative inline-flex items-center">
           {selectedMode?.charAt(0).toUpperCase()}{selectedMode?.slice(1)} Play
+          {selectedMode === 'ranked' && playerStats.level < 5 && (
+            <span className="ml-2 inline-flex items-center gap-1 text-sm text-gray-400">
+              <Lock size={14} /> Reach Lv 5
+            </span>
+          )}
         </div>
       </div>
 

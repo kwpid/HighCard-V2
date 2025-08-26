@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users } from "lucide-react";
+import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users, Lock } from "lucide-react";
 import XPProgress from "./XPProgress";
 
 const Menu = () => {
@@ -145,10 +145,15 @@ const Menu = () => {
         {/* Ranked Button */}
         <button
           onClick={() => handleModeSelect('ranked')}
-          className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
-                   text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
-                   hover:scale-105 hover:shadow-xl neon-glow"
+          disabled={playerStats.level < 5}
+          className={`relative bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
+                   ${playerStats.level < 5 ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:from-emerald-500 hover:to-emerald-600 hover:scale-105 hover:shadow-xl neon-glow'}`}
         >
+          {playerStats.level < 5 && (
+            <div className="absolute -top-3 -right-3 bg-gray-800 border border-gray-600 text-gray-200 text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
+              <Lock size={14} /> Reach Lv 5
+            </div>
+          )}
           <div className="flex items-center justify-center gap-3 mb-3">
             <Trophy size={32} />
             <span className="text-2xl">Ranked</span>
