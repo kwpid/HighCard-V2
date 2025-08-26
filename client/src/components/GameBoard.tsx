@@ -39,11 +39,37 @@ const GameBoard = () => {
   const [showXPGain, setShowXPGain] = useState(false);
   const [xpGained, setXpGained] = useState(0);
   const [previousXPProgress, setPreviousXPProgress] = useState(getXPProgress());
+  const [opponentMMRForForfeit, setOpponentMMRForForfeit] = useState<number | null>(null);
 
   // Initialize game
   useEffect(() => {
     initializeGame();
   }, []);
+
+  // After players are set, compute opponent MMR and mark game in progress
+  useEffect(() => {
+    if (players.length === 0) return;
+    if (gameMode === 'ranked') {
+      const opponentMMR = gameType === '1v1' 
+        ? (players[1]?.mmr || playerStats.rankedStats[gameType].mmr) 
+        : Math.floor(((players[1]?.mmr || 0) + (players[2]?.mmr || 0) + (players[3]?.mmr || 0)) / 3) || playerStats.rankedStats[gameType].mmr;
+      setOpponentMMRForForfeit(opponentMMR);
+      // Persist a game-in-progress record for refresh detection
+      localStorage.setItem('highcard-game-in-progress', JSON.stringify({
+        mode: gameMode,
+        type: gameType,
+        opponentMMR,
+        startedAt: Date.now(),
+      }));
+    } else {
+      localStorage.setItem('highcard-game-in-progress', JSON.stringify({
+        mode: gameMode,
+        type: gameType,
+        opponentMMR: 0,
+        startedAt: Date.now(),
+      }));
+    }
+  }, [players]);
 
   const initializeGame = () => {
     const newPlayers: Player[] = [];
@@ -257,6 +283,16 @@ const GameBoard = () => {
     }
   };
 
+  const handleForfeit = () => {
+    // Apply forfeit as a loss; only MMR penalty for ranked
+    if (gameMode === 'ranked') {
+      const opp = opponentMMRForForfeit || playerStats.rankedStats[gameType].mmr;
+      updateStats(gameMode, gameType, false, opp);
+    }
+    localStorage.removeItem('highcard-game-in-progress');
+    setCurrentScreen('menu');
+  };
+
   const playRound = async () => {
     if (!selectedCard || isProcessing) return;
     
@@ -424,6 +460,8 @@ const GameBoard = () => {
       setShowXPGain(true);
     }, 2000);
     
+    // Game no longer in progress
+    localStorage.removeItem('highcard-game-in-progress');
     setIsProcessing(false);
   };
 
@@ -444,11 +482,11 @@ const GameBoard = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
-          onClick={() => setCurrentScreen('menu')}
+          onClick={handleForfeit}
           className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
         >
           <ArrowLeft size={20} />
-          Back to Menu
+          Forfeit
         </button>
         
         <div className="text-center">
@@ -604,13 +642,7 @@ const GameBoard = () => {
               </div>
             </div>
             
-            <button
-              onClick={() => setCurrentScreen('menu')}
-              className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 
-                       text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
-            >
-              Return to Menu
-            </button>
+            {/* Removed Return to Menu button per requirement */}
           </div>
         )}
 

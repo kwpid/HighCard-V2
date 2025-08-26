@@ -15,8 +15,8 @@ import { useLeaderboardStore } from "./lib/stores/useLeaderboardStore";
 import "@fontsource/inter";
 
 function App() {
-  const { currentScreen, initializeGame } = useGameStore();
-  const { initializePlayer } = usePlayerStore();
+  const { currentScreen, initializeGame, setCurrentScreen } = useGameStore();
+  const { initializePlayer, updateStats } = usePlayerStore() as any;
   const { initializeLeaderboards } = useLeaderboardStore();
 
   useEffect(() => {
@@ -24,7 +24,22 @@ function App() {
     initializeGame();
     initializePlayer();
     initializeLeaderboards();
-  }, [initializeGame, initializePlayer, initializeLeaderboards]);
+
+    // Auto-forfeit if a ranked game was in progress (refresh detection)
+    try {
+      const inProgressRaw = localStorage.getItem('highcard-game-in-progress');
+      if (inProgressRaw) {
+        const inProgress = JSON.parse(inProgressRaw) as { mode: 'casual' | 'ranked'; type: '1v1' | '2v2'; opponentMMR: number };
+        if (inProgress.mode === 'ranked') {
+          updateStats('ranked', inProgress.type, false, inProgress.opponentMMR || undefined);
+        }
+        localStorage.removeItem('highcard-game-in-progress');
+        setCurrentScreen('menu');
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, [initializeGame, initializePlayer, initializeLeaderboards, updateStats, setCurrentScreen]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-inter">
