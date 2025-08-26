@@ -33,6 +33,8 @@ interface PlayerStats {
   totalSeasonWins: number;
   level: number;
   xp: number;
+  ownedTitles?: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }[];
+  equippedTitleId?: string | null;
 }
 
 interface PlayerState {
@@ -47,6 +49,8 @@ interface PlayerState {
   setUsername: (username: string) => void;
   getXPProgress: () => ReturnType<typeof calculateXPProgress>;
   resetAllStats: () => void;
+  equipTitle: (id: string | null) => void;
+  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }) => boolean;
 }
 
 const defaultStats: PlayerStats = {
@@ -67,15 +71,17 @@ const defaultStats: PlayerStats = {
   totalSeasonWins: 0,
   level: 1,
   xp: 0,
+  ownedTitles: [],
+  equippedTitleId: null,
 };
 
-export const usePlayerStore = create<PlayerState>((set, get) => ({
+export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
   playerStats: defaultStats,
   currentSeason: 0, // Pre-season
   username: "Player",
 
-  updateStats: (gameMode, gameType, won, opponentMMR) => {
-    set((state) => {
+  updateStats: (gameMode: GameMode, gameType: GameType, won: boolean, opponentMMR?: number) => {
+    set((state: PlayerState) => {
       const newStats = { ...state.playerStats };
       
       // Calculate and add XP
@@ -86,6 +92,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       const newLevel = checkLevelUp(newStats.xp, newStats.level);
       if (newLevel) {
         newStats.level = newLevel;
+        if ((newStats.level || 0) >= 5) {
+          const alreadyHas = (newStats.ownedTitles || []).some(t => t.id === 'title_rookie');
+          if (!alreadyHas) {
+            newStats.ownedTitles = [...(newStats.ownedTitles || []), { id: 'title_rookie', name: 'Rookie', type: 'regular' }];
+            import('./useGameStore').then(mod => {
+              const { enqueueRewards } = mod.useGameStore.getState();
+              enqueueRewards([{ id: 'title_rookie', type: 'title', name: 'Rookie' }]);
+            }).catch(() => {});
+          }
+        }
       }
       
       if (gameMode === 'casual') {
@@ -162,7 +178,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     });
   },
 
-  setUsername: (username) => {
+  setUsername: (username: string) => {
     set({ username });
     localStorage.setItem('highcard-username', username);
   },
@@ -204,7 +220,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   resetSeasonStats: () => {
-    set((state) => {
+    set((state: PlayerState) => {
       const newStats = { ...state.playerStats };
       
       // Soft reset MMR (like Rocket League)
@@ -235,6 +251,24 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       localStorage.setItem('highcard-player-stats', JSON.stringify(fresh));
       return { playerStats: fresh };
     });
+  },
+
+  equipTitle: (id: string | null) => {
+    set((state: PlayerState) => {
+      const newStats = { ...state.playerStats, equippedTitleId: id } as PlayerStats;
+      localStorage.setItem('highcard-player-stats', JSON.stringify(newStats));
+      return { playerStats: newStats };
+    });
+  },
+
+  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }) => {
+    const current = get().playerStats;
+    const exists = (current.ownedTitles || []).some((t: any) => t.id === title.id);
+    if (exists) return false;
+    const updated = { ...current, ownedTitles: [...(current.ownedTitles || []), title] } as PlayerStats;
+    set({ playerStats: updated });
+    localStorage.setItem('highcard-player-stats', JSON.stringify(updated));
+    return true;
   },
 
   getXPProgress: () => {

@@ -9,6 +9,8 @@ import StatsModal from "./components/StatsModal";
 import SettingsModal from "./components/SettingsModal";
 import TutorialModal from "./components/TutorialModal";
 import LeaderboardModal from "./components/LeaderboardModal";
+import InventoryModal from "./components/InventoryModal";
+import RewardModal from "./components/RewardModal";
 import { useLeaderboardStore } from "./lib/stores/useLeaderboardStore";
 import "@fontsource/inter";
 
@@ -35,7 +37,10 @@ function App() {
       <StatsModal />
       <SettingsModal />
       <TutorialModal />
-      <LeaderboardModal />
+      {/* Leaderboards temporarily disabled */}
+      {/* <LeaderboardModal /> */}
+      <InventoryModal />
+      <RewardModal />
     </div>
   );
 }

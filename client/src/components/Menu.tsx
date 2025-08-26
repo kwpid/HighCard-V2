@@ -182,12 +182,11 @@ const Menu = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 w-full max-w-2xl">
         <button
           onClick={() => setModalsOpen('inventory', true)}
-          disabled
-          className="w-full bg-gray-700 text-gray-400 font-semibold py-3 px-6 rounded-lg 
-                   cursor-not-allowed flex items-center justify-center gap-3"
+          className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg 
+                   transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3"
         >
           <Package size={20} />
-          Inventory (Coming Soon)
+          Inventory
         </button>
 
         <button

@@ -21,6 +21,7 @@ interface Player {
   isAI: boolean;
   team?: number;
   mmr?: number; // Added for AI MMR
+  titleId?: string | null;
 }
 
 const GameBoard = () => {
@@ -52,14 +53,16 @@ const GameBoard = () => {
         name: 'You',
         cards: generateCards(),
         score: 0,
-        isAI: false
+        isAI: false,
+        titleId: playerStats.equippedTitleId || null
       });
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
+        titleId: getRandomAITitleId()
       });
     } else { // 2v2
       newPlayers.push({
@@ -67,7 +70,8 @@ const GameBoard = () => {
         cards: generateCards(),
         score: 0,
         isAI: false,
-        team: 1
+        team: 1,
+        titleId: playerStats.equippedTitleId || null
       });
       newPlayers.push({
         name: generateAIName(),
@@ -75,7 +79,8 @@ const GameBoard = () => {
         score: 0,
         isAI: true,
         team: 1,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
+        titleId: getRandomAITitleId()
       });
       newPlayers.push({
         name: generateAIName(),
@@ -83,7 +88,8 @@ const GameBoard = () => {
         score: 0,
         isAI: true,
         team: 2,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
+        titleId: getRandomAITitleId()
       });
       newPlayers.push({
         name: generateAIName(),
@@ -91,11 +97,20 @@ const GameBoard = () => {
         score: 0,
         isAI: true,
         team: 2,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined
+        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
+        titleId: getRandomAITitleId()
       });
     }
     
     setPlayers(newPlayers);
+  };
+
+  const getRandomAITitleId = (): string | null => {
+    // Simple variety: some AIs have rank-themed titles
+    const roll = Math.random();
+    if (roll < 0.5) return null;
+    const options = ['ai_title_bronze','ai_title_silver','ai_title_gold','ai_title_platinum','ai_title_diamond','ai_title_champion','ai_title_gc'];
+    return options[Math.floor(Math.random() * options.length)];
   };
 
   const generateCards = (): GameCard[] => {
@@ -154,6 +169,32 @@ const GameBoard = () => {
     if (value === 12) return 'Q';
     if (value === 11) return 'J';
     return value.toString();
+  };
+
+  const renderTitle = (titleId?: string | null) => {
+    if (!titleId) return null;
+    const { element } = getTitleDisplay(titleId);
+    return (
+      <div className="text-xs mb-2">
+        {element}
+      </div>
+    );
+  };
+
+  const getTitleDisplay = (titleId: string): { element: JSX.Element } => {
+    // Map known AI titles and player-owned titles to styled spans
+    const map: Record<string, { text: string; className: string }> = {
+      'title_rookie': { text: 'Rookie', className: 'text-gray-200' },
+      'ai_title_bronze': { text: 'S0 BRONZE', className: 'text-orange-400' },
+      'ai_title_silver': { text: 'S0 SILVER', className: 'text-gray-200' },
+      'ai_title_gold': { text: 'S0 GOLD', className: 'text-yellow-400' },
+      'ai_title_platinum': { text: 'S0 PLAT', className: 'text-blue-300' },
+      'ai_title_diamond': { text: 'S0 DIAMOND', className: 'text-cyan-300' },
+      'ai_title_champion': { text: 'S0 CHAMPION', className: 'text-purple-300 animate-pulse' },
+      'ai_title_gc': { text: 'S0 GRAND CHAMPION', className: 'text-pink-300 animate-pulse' },
+    };
+    const info = map[titleId] || { text: titleId, className: 'text-gray-200' };
+    return { element: (<span className={`${info.className}`}>{info.text}</span>) };
   };
 
   const handleCardSelect = (cardId: string) => {
@@ -394,7 +435,7 @@ const GameBoard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {players.slice(1).map((player, index) => (
               <div key={index} className="bg-gray-800 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-1">
                   <div className="text-white font-medium">{player.name}</div>
                   {gameType === '2v2' && (
                     <div className={`text-xs px-2 py-1 rounded ${
@@ -407,6 +448,7 @@ const GameBoard = () => {
                     {player.score} pts
                   </div>
                 </div>
+                {renderTitle(player.titleId)}
                 <div className="text-sm text-gray-400">
                   Cards remaining: {player.cards.filter(c => !c.used).length}
                 </div>
