@@ -5,7 +5,7 @@ import { X, Settings, Volume2, VolumeX, User } from "lucide-react";
 
 const SettingsModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
-  const { username, setUsername } = usePlayerStore();
+  const { username, setUsername, resetAllStats } = usePlayerStore();
   const [newUsername, setNewUsername] = useState(username);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicVolume, setMusicVolume] = useState(50);
@@ -166,6 +166,21 @@ const SettingsModal = () => {
                 />
               </button>
             </div>
+          </div>
+
+          {/* Reset Stats */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">Account</h3>
+            <button
+              onClick={() => {
+                if (confirm('Reset all stats? This cannot be undone.')) {
+                  resetAllStats();
+                }
+              }}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              Reset All Stats
+            </button>
           </div>
 
           {/* Game Info */}

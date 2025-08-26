@@ -46,6 +46,7 @@ interface PlayerState {
   resetSeasonStats: () => void;
   setUsername: (username: string) => void;
   getXPProgress: () => ReturnType<typeof calculateXPProgress>;
+  resetAllStats: () => void;
 }
 
 const defaultStats: PlayerStats = {
@@ -225,6 +226,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       localStorage.setItem('highcard-player-stats', JSON.stringify(newStats));
       
       return { playerStats: newStats };
+    });
+  },
+
+  resetAllStats: () => {
+    set(() => {
+      const fresh = JSON.parse(JSON.stringify(defaultStats)) as PlayerStats;
+      localStorage.setItem('highcard-player-stats', JSON.stringify(fresh));
+      return { playerStats: fresh };
     });
   },
 

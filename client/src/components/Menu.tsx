@@ -38,6 +38,10 @@ const Menu = () => {
   }, []);
 
   const handleModeSelect = (mode: 'casual' | 'ranked') => {
+    if (mode === 'ranked' && playerStats.level < 5) {
+      alert('Reach Level 5 to unlock Ranked. Keep playing Casual to level up!');
+      return;
+    }
     setSelectedMode(mode);
     setCurrentScreen('mode-select');
   };
@@ -204,12 +208,12 @@ const Menu = () => {
         </button>
 
         <button
-          onClick={() => setModalsOpen('leaderboards', true)}
-          className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg 
-                   transition-all duration-300 hover:scale-105 flex items-center gap-2"
+          disabled
+          className="bg-gray-700 text-gray-400 font-medium py-2 px-4 rounded-lg 
+                   cursor-not-allowed flex items-center gap-2"
         >
           <Trophy size={18} />
-          Leaderboards
+          Leaderboards (Coming Soon)
         </button>
 
         <button

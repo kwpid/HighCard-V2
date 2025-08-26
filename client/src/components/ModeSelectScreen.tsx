@@ -8,6 +8,10 @@ const ModeSelectScreen = () => {
   const { playerStats, getXPProgress } = usePlayerStore();
 
   const handleModeSelect = (gameType: '1v1' | '2v2') => {
+    if (selectedMode === 'ranked' && playerStats.level < 5) {
+      alert('Reach Level 5 to unlock Ranked. Keep playing Casual to level up!');
+      return;
+    }
     if (selectedMode) {
       setGameMode(selectedMode, gameType);
       setCurrentScreen('queue');

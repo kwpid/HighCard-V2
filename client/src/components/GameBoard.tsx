@@ -375,7 +375,15 @@ const GameBoard = () => {
           )}
         </div>
         
-        {/* In-game level/XP display removed per design */}
+        {/* Points HUD */}
+        <div className="text-right">
+          <div className="text-sm text-gray-400">Your Points</div>
+          <div className="text-2xl font-bold text-emerald-400">
+            {gameType === '1v1' 
+              ? (players[0]?.score || 0) 
+              : ((players[0]?.score || 0) + (players[1]?.score || 0))}
+          </div>
+        </div>
       </div>
 
       {/* Game Area */}
