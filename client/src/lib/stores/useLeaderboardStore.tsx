@@ -23,11 +23,19 @@ interface LeaderboardState {
 
 // Generate AI names for leaderboards
 const generateAINames = (): string[] => [
-  "CardMaster_AI", "BluffKing_Bot", "AceHunter_AI", "PokerFace_Bot", "HighCard_AI",
-  "WinStreak_Bot", "PowerPlay_AI", "CardShark_Bot", "Victory_AI", "TopDeck_Bot",
-  "Strategic_AI", "ProCard_Bot", "Ultimate_AI", "Champion_Bot", "Legend_AI",
-  "Elite_Bot", "Supreme_AI", "Master_Bot", "Grand_AI", "Apex_Bot",
-  "Titan_AI", "Premier_Bot", "Royal_AI", "Divine_Bot", "Immortal_AI"
+  "zippersman","xxkirtoxx1","togoz","MyWorld_21","JuicyJamz","qozz","JuiceWrldMoonlight","boopsma1","UnstoppableAnarchy","smollost43432X","Xx_MilkShake17Xx","vibeless19","x23","flwr","powf","sinless","mattyboy784","xkirt0","BigHeavy00","JpingMagz","easilymossedkid20","unknown_magz","284962G7","juli23_zae","J_Y3E","easilymossedkid19","uqz","poofusure","QTW1NN","circuIator","grandsontoldmetoplay","RoboStud22","GlobalWRA893","gaslightying","ii_cantsackii","ItsMeDooDoos","Bxx_Duck","XxFrench_Fr1ezX","Revruics","rxd_deer","lqzt_sou1z","arrowstops","HeartlessTierra","thefabisasoXD","ii_cantrunnerii","roblox_user_78045342","unlocked1_2","jalenHurts_RB7","QzccMustDestroy","globalseller","RisingPhoenix","snagz","umppz2",
+  "LilTycoon94","EpicGamer_072","xXBuildBroXx","AquaDude33","FlamezKnight","CookieNomNom","PixelSurge","HyperNova_99","TacoSlayer42","NinjaSocks","DankDestroyer","SlippyPenguin7","ToxicDriftX","CoolBanana_05","WolfStorm88","Jumpman_14","EliteSniper_RBLX","KrazyKoala123","CodeRedYT","MysticSlayer", "niko", "shadowfox91", "lexa_belle", "icebreaker7", "mikey.exe",
+                          "serotonin.exe", "quietstorm", "eliott_", "kevn", "darko777",
+                          "nova_prime", "jakefromstate", "finnski", "yukinochan", "draycoz",
+                          "t0mmygun", "itsjustben", "koalatee", "zypherion", "oatsnbeans",
+                          "noahb_", "ghostbyte", "sugarc0de", "tristan.x", "kyralight",
+                          "sleeplessjoe", "mechamike", "flickzone", "toastymars", "caffeinex",
+                          "lunarshift", "chromafox", "bleachbunni", "hextasyy", "neonharbor",
+                          "viktorwave", "jackal.v2", "zeroiq_", "th3zookeeper", "halcyoncore",
+                          "creepdaddy", "l33tcoder", "dyllbot", "gloomydan", "syrup.exe",
+                          "vanta_rider", "ronintheory", "nocturnex", "rowboatjim", "yeehawdaddy",
+                          "zippersman","xxkirtoxx1","togoz","MyWorld_21","JuicyJamz","qozz","JuiceWrldMoonlight","boopsma1","UnstoppableAnarchy","smollost43432X","Xx_MilkShake17Xx","vibeless19","x23","flwr","powf","sinless","mattyboy784","xkirt0","BigHeavy00","JpingMagz","easilymossedkid20","unknown_magz","284962G7","juli23_zae","J_Y3E","easilymossedkid19","uqz","poofusure","QTW1NN","circuIator","grandsontoldmetoplay","RoboStud22","GlobalWRA893","gaslightying","ii_cantsackii","ItsMeDooDoos","Bxx_Duck","XxFrench_Fr1ezX","Revruics","rxd_deer","lqzt_sou1z","arrowstops","HeartlessTierra","thefabisasoXD","ii_cantrunnerii","roblox_user_78045342","unlocked1_2","jalenHurts_RB7","QzccMustDestroy","globalseller","RisingPhoenix","snagz","umppz2",
+                          "LilTycoon94","EpicGamer_072","xXBuildBroXx","AquaDude33","FlamezKnight","CookieNomNom","PixelSurge","HyperNova_99","TacoSlayer42","NinjaSocks","DankDestroyer","SlippyPenguin7","ToxicDriftX","CoolBanana_05","WolfStorm88","Jumpman_14","EliteSniper_RBLX","KrazyKoala123","CodeRedYT","MysticSlayer"
 ];
 
 // Generate competitive AI opponents (Grand Champion level)
