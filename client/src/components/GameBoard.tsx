@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { playGame, generateAIName, calculateMMRChange } from "../lib/gameLogic";
+import { playGame, generateAIName, calculateMMRChange, getRankFromMMR } from "../lib/gameLogic";
 import { calculateXPGain } from "../lib/xpSystem";
 import Card from "./Card";
 import XPGainDisplay from "./XPGainDisplay";
@@ -56,13 +56,14 @@ const GameBoard = () => {
         isAI: false,
         titleId: playerStats.equippedTitleId || null
       });
+      const ai1MMR = gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined;
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
-        titleId: getRandomAITitleId()
+        mmr: ai1MMR,
+        titleId: getRandomAITitleId(ai1MMR)
       });
     } else { // 2v2
       newPlayers.push({
@@ -73,44 +74,58 @@ const GameBoard = () => {
         team: 1,
         titleId: playerStats.equippedTitleId || null
       });
+      const allyMMR = gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined;
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
         team: 1,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
-        titleId: getRandomAITitleId()
+        mmr: allyMMR,
+        titleId: getRandomAITitleId(allyMMR)
       });
+      const enemy1MMR = gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined;
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
         team: 2,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
-        titleId: getRandomAITitleId()
+        mmr: enemy1MMR,
+        titleId: getRandomAITitleId(enemy1MMR)
       });
+      const enemy2MMR = gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined;
       newPlayers.push({
         name: generateAIName(),
         cards: generateCards(),
         score: 0,
         isAI: true,
         team: 2,
-        mmr: gameMode === 'ranked' ? Math.max(0, playerStats.rankedStats[gameType].mmr + Math.floor(Math.random() * 200) - 100) : undefined,
-        titleId: getRandomAITitleId()
+        mmr: enemy2MMR,
+        titleId: getRandomAITitleId(enemy2MMR)
       });
     }
     
     setPlayers(newPlayers);
   };
 
-  const getRandomAITitleId = (): string | null => {
-    // Simple variety: some AIs have rank-themed titles
-    const roll = Math.random();
-    if (roll < 0.5) return null;
-    const options = ['ai_title_bronze','ai_title_silver','ai_title_gold','ai_title_platinum','ai_title_diamond','ai_title_champion','ai_title_gc'];
-    return options[Math.floor(Math.random() * options.length)];
+  const getRandomAITitleId = (mmr?: number): string | null => {
+    // Do not assign future or unreleased titles. Only assign pre-season rank-style labels based on MMR.
+    if (!mmr || gameMode !== 'ranked') return null;
+    const chance = 0.7; // high chance to show for ranked AIs
+    if (Math.random() > chance) return null;
+    const { rank } = getRankFromMMR(mmr);
+    switch (rank) {
+      case 'Grand Champion': return 'ai_rank_gc';
+      case 'Champion': return 'ai_rank_champion';
+      case 'Diamond': return 'ai_rank_diamond';
+      case 'Platinum': return 'ai_rank_platinum';
+      case 'Gold': return 'ai_rank_gold';
+      case 'Silver': return 'ai_rank_silver';
+      case 'Bronze':
+      default:
+        return 'ai_rank_bronze';
+    }
   };
 
   const generateCards = (): GameCard[] => {
@@ -185,13 +200,15 @@ const GameBoard = () => {
     // Map known AI titles and player-owned titles to styled spans
     const map: Record<string, { text: string; className: string }> = {
       'title_rookie': { text: 'Rookie', className: 'text-gray-200' },
-      'ai_title_bronze': { text: 'S0 BRONZE', className: 'text-orange-400' },
-      'ai_title_silver': { text: 'S0 SILVER', className: 'text-gray-200' },
-      'ai_title_gold': { text: 'S0 GOLD', className: 'text-yellow-400' },
-      'ai_title_platinum': { text: 'S0 PLAT', className: 'text-blue-300' },
-      'ai_title_diamond': { text: 'S0 DIAMOND', className: 'text-cyan-300' },
-      'ai_title_champion': { text: 'S0 CHAMPION', className: 'text-purple-300 animate-pulse' },
-      'ai_title_gc': { text: 'S0 GRAND CHAMPION', className: 'text-pink-300 animate-pulse' },
+      'title_gamer': { text: 'GAMER', className: 'text-white' },
+      // AI pre-season rank labels (not rewards)
+      'ai_rank_bronze': { text: 'PRE-SEASON BRONZE', className: 'text-orange-400' },
+      'ai_rank_silver': { text: 'PRE-SEASON SILVER', className: 'text-gray-200' },
+      'ai_rank_gold': { text: 'PRE-SEASON GOLD', className: 'text-yellow-400' },
+      'ai_rank_platinum': { text: 'PRE-SEASON PLATINUM', className: 'text-blue-300' },
+      'ai_rank_diamond': { text: 'PRE-SEASON DIAMOND', className: 'text-cyan-300' },
+      'ai_rank_champion': { text: 'PRE-SEASON CHAMPION', className: 'text-purple-300' },
+      'ai_rank_gc': { text: 'PRE-SEASON GRAND CHAMPION', className: 'text-pink-300' },
     };
     const info = map[titleId] || { text: titleId, className: 'text-gray-200' };
     return { element: (<span className={`${info.className}`}>{info.text}</span>) };

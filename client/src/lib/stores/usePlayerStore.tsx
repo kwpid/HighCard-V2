@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { getRankFromMMR, calculateMMRChange } from "../gameLogic";
 import { useLeaderboardStore } from "./useLeaderboardStore";
 import { calculateXPGain, checkLevelUp, calculateXPProgress } from "../xpSystem";
+import { levelTitles } from "../titles";
 
 type GameMode = 'casual' | 'ranked';
 type GameType = '1v1' | '2v2';
@@ -92,16 +93,18 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
       const newLevel = checkLevelUp(newStats.xp, newStats.level);
       if (newLevel) {
         newStats.level = newLevel;
-        if ((newStats.level || 0) >= 5) {
-          const alreadyHas = (newStats.ownedTitles || []).some(t => t.id === 'title_rookie');
-          if (!alreadyHas) {
-            newStats.ownedTitles = [...(newStats.ownedTitles || []), { id: 'title_rookie', name: 'Rookie', type: 'regular' }];
+        // Award all configured level titles up to this level
+        const toAward = levelTitles.filter(t => t.level <= newStats.level);
+        toAward.forEach(t => {
+          const has = (newStats.ownedTitles || []).some(x => x.id === t.id);
+          if (!has) {
+            newStats.ownedTitles = [...(newStats.ownedTitles || []), { id: t.id, name: t.name, type: 'regular' }];
             import('./useGameStore').then(mod => {
               const { enqueueRewards } = mod.useGameStore.getState();
-              enqueueRewards([{ id: 'title_rookie', type: 'title', name: 'Rookie' }]);
+              enqueueRewards([{ id: t.id, type: 'title', name: t.name }]);
             }).catch(() => {});
           }
-        }
+        });
       }
       
       if (gameMode === 'casual') {
