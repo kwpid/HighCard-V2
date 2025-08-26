@@ -27,7 +27,7 @@ export const RANKS = [
   'Card Legend'
 ];
 
-export const DIVISIONS = ['III', 'II', 'I'];
+export const DIVISIONS = ['I', 'II', 'III'];
 
 export const RANK_THRESHOLDS = {
   'Bronze': { min: 0, max: 199 },
@@ -55,18 +55,18 @@ export const getRankFromMMR = (mmr: number): { rank: string; division: string | 
       
       let divisionIndex;
       if (positionInRank < divisionSize) {
-        divisionIndex = 0; // III
+        divisionIndex = 0; // I (lowest)
       } else if (positionInRank < divisionSize * 2) {
         divisionIndex = 1; // II
       } else {
-        divisionIndex = 2; // I
+        divisionIndex = 2; // III (highest)
       }
       
       return { rank, division: DIVISIONS[divisionIndex] };
     }
   }
   
-  return { rank: 'Bronze', division: 'III' };
+  return { rank: 'Bronze', division: 'I' };
 };
 
 // Calculate MMR change after a match using proper ELO formula

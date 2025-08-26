@@ -38,43 +38,43 @@ export const SUITS = ['♠', '♥', '♦', '♣'] as const;
 export const RANKS = [
   {
     name: 'Bronze',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 0, max: 199 },
     color: '#cd7f32'
   },
   {
     name: 'Silver',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 200, max: 399 },
     color: '#c0c0c0'
   },
   {
     name: 'Gold',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 400, max: 599 },
     color: '#ffd700'
   },
   {
     name: 'Platinum',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 600, max: 799 },
     color: '#e5e4e2'
   },
   {
     name: 'Diamond',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 800, max: 999 },
     color: '#b9f2ff'
   },
   {
     name: 'Champion',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 1000, max: 1199 },
     color: '#9d4edd'
   },
   {
     name: 'Grand Champion',
-    divisions: ['III', 'II', 'I'],
+    divisions: ['I', 'II', 'III'],
     mmrRange: { min: 1200, max: 1599 },
     color: '#ff006e'
   },
