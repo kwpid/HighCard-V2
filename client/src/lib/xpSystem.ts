@@ -60,11 +60,10 @@ export const calculateXPGain = (won: boolean, gameMode: 'casual' | 'ranked', gam
 
 // Check if player leveled up and return new level
 export const checkLevelUp = (currentXP: number, currentLevel: number): number | null => {
-  const totalXPForNextLevel = calculateTotalXPForLevel(currentLevel + 1);
-  
-  if (currentXP >= totalXPForNextLevel) {
-    return currentLevel + 1;
+  let nextLevel = currentLevel;
+  // Handle multiple level-ups if a large XP gain crosses several thresholds
+  while (currentXP >= calculateTotalXPForLevel(nextLevel + 1)) {
+    nextLevel += 1;
   }
-  
-  return null;
+  return nextLevel > currentLevel ? nextLevel : null;
 };

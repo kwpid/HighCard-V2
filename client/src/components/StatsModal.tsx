@@ -44,6 +44,12 @@ const StatsModal = () => {
                 <div className="text-sm text-gray-400">Total Wins</div>
               </div>
               <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-2xl font-bold text-yellow-400">
+                  Peak MMR: {Math.max(playerStats.rankedStats['1v1'].peakMMR || 0, playerStats.rankedStats['2v2'].peakMMR || 0)}
+                </div>
+                <div className="text-sm text-gray-400">Highest Rank: {(playerStats.rankedStats['1v1'].highestRank || playerStats.rankedStats['2v2'].highestRank) || '—'}</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4">
                 <div className="text-2xl font-bold text-red-400">
                   {playerStats.casualStats['1v1'].losses + playerStats.casualStats['2v2'].losses + 
                    playerStats.rankedStats['1v1'].losses + playerStats.rankedStats['2v2'].losses}
@@ -188,6 +194,16 @@ const StatsModal = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-gray-400">Peak MMR:</span>
+                    <span className="text-white font-medium">{playerStats.rankedStats['1v1'].peakMMR || playerStats.rankedStats['1v1'].mmr}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Highest Rank:</span>
+                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].highestRank || 'Unranked')}`}>
+                      {playerStats.rankedStats['1v1'].highestRank || 'Unranked'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-400">MMR:</span>
                     <span className="text-white font-medium">
                       {playerStats.rankedStats['1v1'].mmr}
@@ -228,6 +244,16 @@ const StatsModal = () => {
                     <span className="text-gray-400">Current Rank:</span>
                     <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].currentRank || 'Unranked')}`}>
                       {playerStats.rankedStats['2v2'].currentRank || 'Unranked'} {playerStats.rankedStats['2v2'].division || ''}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Peak MMR:</span>
+                    <span className="text-white font-medium">{playerStats.rankedStats['2v2'].peakMMR || playerStats.rankedStats['2v2'].mmr}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Highest Rank:</span>
+                    <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].highestRank || 'Unranked')}`}>
+                      {playerStats.rankedStats['2v2'].highestRank || 'Unranked'}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -276,6 +302,9 @@ const StatsModal = () => {
                   <div className="text-sm text-gray-400">
                     Current Progress: {playerStats.totalSeasonWins} wins
                   </div>
+                  <div className="text-sm text-gray-300">
+                    Current Reward Tier: {playerStats.rankedStats['1v1'].currentRank || 'Unranked'}
+                  </div>
                   <div className="w-full bg-gray-600 rounded-full h-2">
                     <div 
                       className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-300"
@@ -296,7 +325,7 @@ const StatsModal = () => {
                     All ranked wins count toward season rewards
                   </div>
                   <div className="text-xs text-gray-400">
-                    Progress is shown above (1v1 + 2v2 combined)
+                    Current Reward Tier: {(playerStats.rankedStats['1v1'].currentRank || playerStats.rankedStats['2v2'].currentRank) || 'Unranked'}
                   </div>
                 </div>
               </div>

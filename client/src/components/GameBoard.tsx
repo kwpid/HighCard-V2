@@ -375,22 +375,7 @@ const GameBoard = () => {
           )}
         </div>
         
-        {/* XP Progress in Header */}
-        <div className="text-right">
-          <div className="flex items-center gap-2 mb-1">
-            <Star size={16} className="text-yellow-400" />
-            <span className="text-sm text-white font-medium">Level {playerStats.level}</span>
-          </div>
-          <div className="text-xs text-gray-400">
-            {getXPProgress().currentXP} / {getXPProgress().xpToNextLevel} XP
-          </div>
-          <div className="w-24 bg-gray-700 rounded-full h-1.5 mt-1">
-            <div 
-              className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${getXPProgress().progressPercentage}%` }}
-            ></div>
-          </div>
-        </div>
+        {/* In-game level/XP display removed per design */}
       </div>
 
       {/* Game Area */}

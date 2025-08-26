@@ -17,6 +17,8 @@ interface RankedStats extends GameStats {
   currentRank: string | null;
   division: string | null;
   placementMatches: number;
+  peakMMR?: number;
+  highestRank?: string | null;
 }
 
 interface PlayerStats {
@@ -54,11 +56,11 @@ const defaultStats: PlayerStats = {
   rankedStats: {
     '1v1': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
-      currentRank: null, division: null, placementMatches: 0 
+      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null 
     },
     '2v2': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
-      currentRank: null, division: null, placementMatches: 0 
+      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null 
     },
   },
   totalSeasonWins: 0,
@@ -119,6 +121,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
             const { rank, division } = getRankFromMMR(rankedStats.mmr);
             rankedStats.currentRank = rank;
             rankedStats.division = division;
+            // Track peaks
+            rankedStats.peakMMR = Math.max(rankedStats.peakMMR || rankedStats.mmr, rankedStats.mmr);
+            rankedStats.highestRank = rankedStats.highestRank || rank;
           }
         } else {
           // Regular ranked match
@@ -129,6 +134,17 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           const { rank, division } = getRankFromMMR(rankedStats.mmr);
           rankedStats.currentRank = rank;
           rankedStats.division = division;
+          // Update peak MMR and highest rank
+          rankedStats.peakMMR = Math.max(rankedStats.peakMMR || rankedStats.mmr, rankedStats.mmr);
+          if (!rankedStats.highestRank) {
+            rankedStats.highestRank = rank;
+          } else {
+            // Promote highestRank if this rank is higher in the ladder
+            const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion'];
+            const currentIdx = ladder.indexOf(rankedStats.highestRank);
+            const newIdx = ladder.indexOf(rank);
+            if (newIdx > currentIdx) rankedStats.highestRank = rank;
+          }
         }
       }
 
