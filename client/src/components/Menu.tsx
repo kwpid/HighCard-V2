@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users, Lock } from "lucide-react";
+import { getRankFromMMR } from "../lib/gameLogic";
 import XPProgress from "./XPProgress";
 
 const Menu = () => {
@@ -63,6 +64,11 @@ const Menu = () => {
   };
 
   const highestRank = getHighestRank();
+  const maxPeakMMR = Math.max(
+    playerStats.rankedStats['1v1'].peakMMR || 0,
+    playerStats.rankedStats['2v2'].peakMMR || 0
+  );
+  const peakOverall = getRankFromMMR(maxPeakMMR);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-8">
@@ -111,6 +117,9 @@ const Menu = () => {
             </div>
             <div className="text-sm text-gray-400">
               {highestRank.mmr} MMR
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              Peak: {maxPeakMMR} MMR · {peakOverall.rank}
             </div>
           </div>
         </div>

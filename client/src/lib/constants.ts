@@ -74,9 +74,15 @@ export const RANKS = [
   },
   {
     name: 'Grand Champion',
-    divisions: [],
-    mmrRange: { min: 1200, max: Infinity },
+    divisions: ['III', 'II', 'I'],
+    mmrRange: { min: 1200, max: 1599 },
     color: '#ff006e'
+  },
+  {
+    name: 'Card Legend',
+    divisions: [],
+    mmrRange: { min: 1600, max: Infinity },
+    color: '#ffffff'
   },
 ] as const;
 
