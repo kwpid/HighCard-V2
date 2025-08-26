@@ -97,7 +97,7 @@ const getRankColorClass = (rankName: string): string => {
     'Diamond': 'text-[#b9f2ff]',
     'Champion': 'text-[#9d4edd]',
     'Grand Champion': 'text-[#ff006e]',
-    'Supersonic Legend': 'text-white'
+    'Clicker Legend': 'text-white'
   };
   
   return rankColors[rankName] || 'text-gray-200';

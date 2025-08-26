@@ -37,7 +37,7 @@ export const RANK_THRESHOLDS = {
   'Diamond': { min: 1000, max: 1199 },
   'Champion': { min: 1200, max: 1399 },
   'Grand Champion': { min: 1400, max: 1599 },
-  'Supersonic Legend': { min: 1600, max: Infinity }
+  'Clicker Legend': { min: 1600, max: Infinity }
 };
 
 
