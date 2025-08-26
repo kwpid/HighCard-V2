@@ -169,49 +169,6 @@ const Menu = () => {
         </div>
       )}
 
-      {/* XP Progress */}
-      <div className="w-full max-w-2xl mb-6">
-        <XPProgress xpProgress={getXPProgress()} showDetails={true} />
-      </div>
-
-      {/* Season Rewards Progress */}
-      <div className="w-full max-w-2xl mb-8 bg-gray-800 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Star size={24} className="text-yellow-400" />
-          <h3 className="text-lg font-semibold text-white">Season Rewards Progress</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <div className="text-sm text-gray-400 mb-2">
-              Total Season Wins: {playerStats.totalSeasonWins}
-            </div>
-            <div className="w-full bg-gray-600 rounded-full h-3">
-              <div 
-                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min((playerStats.totalSeasonWins % 10) * 10, 100)}%` }}
-              ></div>
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {playerStats.totalSeasonWins % 10 === 0 ? 10 : 10 - (playerStats.totalSeasonWins % 10)} wins until next reward
-            </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-sm text-gray-400 mb-1">Highest Rank</div>
-            <div className={`text-lg font-bold ${getRankColor(highestRank.rank)}`}>
-              {highestRank.rank || 'Unranked'} {highestRank.division || ''}
-            </div>
-            <div className="text-sm text-gray-400">
-              {highestRank.mmr} MMR
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Peak: {maxPeakMMR} MMR · {peakOverall.rank}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Menu Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full max-w-2xl">
         {/* Casual Button */}
@@ -275,11 +232,11 @@ const Menu = () => {
       </div>
 
       {/* Secondary Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 w-full max-w-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full max-w-2xl">
         <button
           onClick={() => setModalsOpen('inventory', true)}
-          className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg 
-                   transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3"
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 
+                   text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3"
         >
           <Package size={20} />
           Inventory
@@ -294,6 +251,11 @@ const Menu = () => {
           <HelpCircle size={20} />
           Tutorial
         </button>
+      </div>
+
+      {/* Detailed Level Progress (moved here) */}
+      <div className="w-full max-w-2xl mb-8">
+        <XPProgress xpProgress={getXPProgress()} showDetails={true} />
       </div>
 
       {/* Smaller Buttons */}

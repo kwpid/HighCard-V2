@@ -13,20 +13,18 @@ export interface NewsItem {
 export const newsItems: NewsItem[] = [
   {
     id: 'season-1-launch',
-    title: 'Season 1 Launch',
-    summary: 'The first competitive season is now live!',
+    title: 'Season 1 Launch Data',
+    summary: 'The first official season of Ranked',
     content: `
-      <h2>Welcome to Season 1!</h2>
-      <p>HighCard's first competitive season is now live! Here's what's new:</p>
+      <h2>Season 1 Launch Date</h2>
+      <p>HighCards Season 1 launches on 9/1/2025:</p>
       <ul>
         <li>Ranked play with MMR system</li>
         <li>Season rewards for reaching milestones</li>
-        <li>New Card Legend prestige rank</li>
-        <li>Improved AI opponents</li>
       </ul>
       <p>Good luck on your journey to become a Card Legend!</p>
     `,
-    date: '2025-01-15',
+    date: '2025-08-126',
     category: 'announcement',
     featured: true
   },
@@ -40,32 +38,9 @@ export const newsItems: NewsItem[] = [
       <p>To achieve Card Legend status, you need to reach 1600+ MMR. This rank represents the pinnacle of skill and consistency in the game.</p>
       <p>Card Legend players will receive special recognition and exclusive rewards. Will you be the first to reach this prestigious rank?</p>
     `,
-    date: '2025-01-10',
+    date: '2025-08-26',
     category: 'update',
     featured: true
-  },
-  {
-    id: 'balance-update',
-    title: 'Balance Update v1.2',
-    summary: 'Power-up card adjustments and AI improvements',
-    content: `
-      <h2>Balance Update v1.2</h2>
-      <p>We've made several balance adjustments to improve gameplay:</p>
-      <h3>Power-Up Cards</h3>
-      <ul>
-        <li>Adjusted power-up card distribution</li>
-        <li>Improved strategic value of power-ups</li>
-      </ul>
-      <h3>AI Improvements</h3>
-      <ul>
-        <li>Better decision making for high-ranked AI</li>
-        <li>More varied playing styles</li>
-        <li>Improved difficulty scaling</li>
-      </ul>
-      <p>These changes should make matches more competitive and enjoyable!</p>
-    `,
-    date: '2025-01-08',
-    category: 'patch'
   }
 ];
 
