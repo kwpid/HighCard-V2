@@ -161,7 +161,7 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
             rankedStats.highestRank = rank;
           } else {
             // Promote highestRank if this rank is higher in the ladder
-            const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion','Clicker Legend'];
+            const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion','Card Legend'];
             const currentIdx = ladder.indexOf(rankedStats.highestRank);
             const newIdx = ladder.indexOf(rank);
             if (newIdx > currentIdx) rankedStats.highestRank = rank;

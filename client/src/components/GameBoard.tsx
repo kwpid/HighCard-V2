@@ -116,7 +116,7 @@ const GameBoard = () => {
     if (Math.random() > chance) return null;
     const { rank } = getRankFromMMR(mmr);
     switch (rank) {
-      case 'Clicker Legend': return 'ai_rank_clicker';
+      case 'Card Legend': return 'ai_rank_clicker';
       case 'Grand Champion': return 'ai_rank_gc';
       case 'Champion': return 'ai_rank_champion';
       case 'Diamond': return 'ai_rank_diamond';
@@ -136,7 +136,7 @@ const GameBoard = () => {
     const rand = (arr: GameCard[]) => arr[Math.floor(Math.random() * arr.length)];
     const tier = mmr ?? 450;
     if (tier >= 1600) {
-      // Clicker Legend: almost always play best
+      // Card Legend: almost always play best
       return Math.random() < 0.95 ? sorted[0] : rand(sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.2))));
     } else if (tier >= 1200) {
       // GC: almost always play best

@@ -10,12 +10,14 @@ export type LevelTitle = {
 };
 
 export const levelTitles: LevelTitle[] = [
-  { id: 'title_rookie', name: 'Rookie', level: 5, color: 'text-gray-200', glow: false },
+  { id: 'title_rookie', name: 'Rookie', level: 5, color: 'text-white', glow: false },
   { id: 'title_gamer', name: 'GAMER', level: 10, color: 'text-white', glow: false },
   { id: 'title_grinder', name: 'LEVEL GRINDER', level: 15, color: 'text-white', glow: false },
   { id: 'title_noshow', name: 'MR. NO-SHOW', level: 17, color: 'text-white', glow: false },
-  // Add more here, e.g.:
-  // { id: 'title_elite', name: 'ELITE', level: 20, color: 'text-yellow-300', glow: true },
+  { id: 'title_cardshark', name: 'CARD SHARK', level: 20, color: 'text-white', glow: false },
+  { id: 'title_ultimategrinder', name: 'ULTIMATE GRINDER', level: 25, color: 'text-white', glow: false },
+  { id: 'title_shadowdealer', name: 'SHADOW DEALER', level: 30, color: 'text-white', glow: false },
+  { id: 'title_stackmaster', name: 'STACK MASTER', level: 35, color: 'text-white', glow: false },
+  { id: 'title_kingoftable', name: 'KING OF THE TABLE', level: 40, color: 'text-white', glow: false },
+  { id: 'title_cardlord', name: 'CARD LORD', level: 50, color: 'text-white', glow: false },
 ];
-
-

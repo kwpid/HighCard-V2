@@ -1,6 +1,7 @@
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { ArrowLeft, Users, User, Trophy, Star, Lock } from "lucide-react";
+import { RANKS } from "../lib/constants";
 import XPProgress from "./XPProgress";
 
 const ModeSelectScreen = () => {
@@ -51,6 +52,66 @@ const ModeSelectScreen = () => {
       <div className="absolute top-6 right-6 w-48">
         <XPProgress xpProgress={getXPProgress()} showDetails={false} />
       </div>
+
+      {/* Rank Ladder (ranked only, before queue) */}
+      {selectedMode === 'ranked' && (
+        <div className="w-full max-w-3xl mb-8">
+          <div className="bg-gray-800 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy size={24} className="text-emerald-400" />
+              <h3 className="text-xl font-semibold text-white">Rank Ladder</h3>
+            </div>
+            <div className="space-y-2">
+              {RANKS.map((rank) => {
+                const isTiered = rank.divisions.length > 0;
+                const mmrLabel = `${rank.mmrRange.min} - ${rank.mmrRange.max === Infinity ? '∞' : rank.mmrRange.max}`;
+                const current1v1 = playerStats.rankedStats['1v1'];
+                const current2v2 = playerStats.rankedStats['2v2'];
+                const isCurrent1v1 = current1v1.currentRank === rank.name;
+                const isCurrent2v2 = current2v2.currentRank === rank.name;
+                return (
+                  <div key={rank.name} className="bg-gray-750 rounded p-3 border border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-6 rounded" style={{ backgroundColor: rank.color }} />
+                        <div className={`font-bold ${getRankColor(rank.name)}`}>{rank.name}</div>
+                        <div className="text-xs text-gray-400">MMR {mmrLabel}</div>
+                      </div>
+                      {isTiered && (
+                        <div className="flex gap-2 text-xs text-gray-400">
+                          {rank.divisions.map((d) => (
+                            <span key={d} className="bg-gray-700 px-2 py-0.5 rounded">{d}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {(isCurrent1v1 || isCurrent2v2) && (
+                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        {isCurrent1v1 && (
+                          <div className="bg-gray-700 rounded p-2">
+                            <div className="text-gray-400">Your 1v1</div>
+                            <div className="text-white font-medium">
+                              {current1v1.currentRank} {current1v1.division} · {current1v1.mmr} MMR
+                            </div>
+                          </div>
+                        )}
+                        {isCurrent2v2 && (
+                          <div className="bg-gray-700 rounded p-2">
+                            <div className="text-gray-400">Your 2v2</div>
+                            <div className="text-white font-medium">
+                              {current2v2.currentRank} {current2v2.division} · {current2v2.mmr} MMR
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Season Rewards Progress (for ranked only) */}
       {selectedMode === 'ranked' && (

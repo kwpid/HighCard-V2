@@ -140,6 +140,10 @@ const TutorialModal = () => {
           <div className="bg-gray-700 p-2 rounded text-center">
             <div className="rank-grand-champion font-bold">Grand Champion</div>
           </div>
+          <div className="bg-gray-700 p-2 rounded text-center">
+            <div className="font-bold text-white">Card Legend</div>
+            <div className="text-[11px] text-gray-300">Special prestige rank for elite players</div>
+          </div>
           
           <div className="space-y-3">
             <div className="bg-yellow-900/20 border border-yellow-400 rounded-lg p-3">
@@ -152,6 +156,12 @@ const TutorialModal = () => {
               <h4 className="font-semibold text-green-400 mb-1">Season Rewards</h4>
               <p className="text-xs text-gray-300">
                 Earn rewards by winning 10 ranked matches at each rank tier.
+              </p>
+            </div>
+            <div className="bg-blue-900/20 border border-blue-400 rounded-lg p-3">
+              <h4 className="font-semibold text-blue-400 mb-1">About Card Legend</h4>
+              <p className="text-xs text-gray-300">
+                Card Legend is a rare prestige showcasing mastery and consistency at the top. It does not change gameplay but highlights exceptional performance.
               </p>
             </div>
           </div>

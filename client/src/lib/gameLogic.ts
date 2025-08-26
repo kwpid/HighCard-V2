@@ -24,7 +24,7 @@ export const RANKS = [
   'Diamond',
   'Champion',
   'Grand Champion',
-  'Clicker Legend'
+  'Card Legend'
 ];
 
 export const DIVISIONS = ['III', 'II', 'I'];
@@ -37,14 +37,14 @@ export const RANK_THRESHOLDS = {
   'Diamond': { min: 800, max: 999 },
   'Champion': { min: 1000, max: 1199 },
   'Grand Champion': { min: 1200, max: 1599 },
-  'Clicker Legend': { min: 1600, max: Infinity }
+  'Card Legend': { min: 1600, max: Infinity }
 };
 
 // Calculate rank and division from MMR
 export const getRankFromMMR = (mmr: number): { rank: string; division: string | null } => {
   for (const [rank, threshold] of Object.entries(RANK_THRESHOLDS)) {
     if (mmr >= threshold.min && mmr <= threshold.max) {
-      if (rank === 'Clicker Legend') {
+      if (rank === 'Card Legend') {
         return { rank, division: null };
       }
       
@@ -76,7 +76,7 @@ export const calculateMMRChange = (won: boolean, playerMMR: number, opponentMMR:
   
   // Calculate K-factor based on player's MMR (higher MMR = smaller changes)
   let kFactor = K_FACTOR_MAX;
-  if (playerMMR >= 1600) { // Clicker Legend
+  if (playerMMR >= 1600) { // Card Legend
     kFactor = K_FACTOR_MIN;
   } else if (playerMMR >= 1200) { // Grand Champion
     kFactor = 8;
