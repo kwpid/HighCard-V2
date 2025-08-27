@@ -3,6 +3,7 @@ import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { useLeaderboardStore } from "../lib/stores/useLeaderboardStore";
 import { X, Trophy, BarChart3, Crown, Star } from "lucide-react";
+import { getRankFromMMR } from "../lib/gameLogic";
 
 const LeaderboardModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
@@ -119,7 +120,7 @@ const LeaderboardModal = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-yellow-400 font-bold text-sm">{player.mmr} MMR</div>
-                    <div className="text-xs text-gray-400">Grand Champion</div>
+                    <div className="text-xs text-gray-400">{getRankFromMMR(player.mmr || 0).rank}</div>
                   </div>
                 </div>
               );
@@ -160,7 +161,7 @@ const LeaderboardModal = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-yellow-400 font-bold text-sm">{player.mmr} MMR</div>
-                    <div className="text-xs text-gray-400">Grand Champion</div>
+                    <div className="text-xs text-gray-400">{getRankFromMMR(player.mmr || 0).rank}</div>
                   </div>
                 </div>
               );

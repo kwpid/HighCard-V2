@@ -3,19 +3,26 @@ import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
 import { ArrowLeft, Users, Zap, Star } from "lucide-react";
 import XPProgress from "./XPProgress";
+import { calculateDynamicQueueTime, formatQueueTime, getCurrentOnlinePlayerCount } from "../lib/onlinePlayerSystem";
 
 const QueueScreen = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
   const { playerStats, getXPProgress } = usePlayerStore();
   const [queueTime, setQueueTime] = useState(0);
   const [foundMatch, setFoundMatch] = useState(false);
+  const [estimatedWaitTime, setEstimatedWaitTime] = useState(0);
+  const [onlinePlayerData, setOnlinePlayerData] = useState(getCurrentOnlinePlayerCount());
 
   useEffect(() => {
-    // Calculate queue time based on MMR (higher MMR = longer wait)
+    // Calculate dynamic queue time based on online players and MMR
     const mmr = gameMode === 'ranked' ? playerStats.rankedStats[gameType].mmr : 0;
-    const baseTime = gameMode === 'casual' ? 3 : 5;
-    const mmrMultiplier = Math.floor(mmr / 100) * 2;
-    const totalTime = Math.min(baseTime + mmrMultiplier, 20);
+    const totalTime = calculateDynamicQueueTime(gameMode, gameType, mmr);
+    setEstimatedWaitTime(totalTime);
+    
+    // Update online player data every 30 seconds
+    const playerUpdateInterval = setInterval(() => {
+      setOnlinePlayerData(getCurrentOnlinePlayerCount());
+    }, 30000);
     
     const interval = setInterval(() => {
       setQueueTime(prev => {
@@ -30,7 +37,10 @@ const QueueScreen = () => {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearInterval(playerUpdateInterval);
+    };
   }, [gameMode, gameType, playerStats, setCurrentScreen]);
 
   return (
@@ -58,6 +68,11 @@ const QueueScreen = () => {
           <div className="text-xl text-gray-300">
             {gameMode.charAt(0).toUpperCase() + gameMode.slice(1)} {gameType}
           </div>
+          {!foundMatch && (
+            <div className="text-lg text-yellow-400 mt-2">
+              ESTIMATED WAIT TIME: {formatQueueTime(estimatedWaitTime)}
+            </div>
+          )}
         </div>
 
         {/* Queue Animation */}
@@ -107,6 +122,10 @@ const QueueScreen = () => {
             <div className="flex justify-between">
               <span className="text-gray-400">Cards per player:</span>
               <span className="text-white font-medium">8 + 2 power-ups</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Online players:</span>
+              <span className="text-emerald-400 font-medium">{onlinePlayerData.totalOnline}</span>
             </div>
             {gameMode === 'ranked' && (
               <div className="flex justify-between">
