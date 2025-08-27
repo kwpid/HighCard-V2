@@ -72,8 +72,8 @@ export const getRankFromMMR = (mmr: number): { rank: string; division: string | 
 
 // Calculate MMR change after a match using proper ELO formula
 export const calculateMMRChange = (won: boolean, playerMMR: number, opponentMMR: number = playerMMR): number => {
-  const K_FACTOR_MAX = 22;
-  const K_FACTOR_MIN = 6;
+  const K_FACTOR_MAX = 45;
+  const K_FACTOR_MIN = 12;
   
   // Calculate K-factor based on player's MMR (higher MMR = smaller changes)
   let kFactor = K_FACTOR_MAX;
