@@ -139,7 +139,7 @@ const TutorialModal = () => {
             </div>
           </div>
           <div className="bg-gray-700 p-2 rounded text-center">
-            <RankImage rankName="Grand Champion" division="I" size="sm" showText={true} />
+            <RankImage rankName="Grand Champion" showHighestDivision={true} size="sm" showText={true} />
           </div>
                      <div className="bg-gray-700 p-2 rounded text-center">
              <RankImage rankName="Card Legend" size="sm" showText={true} />

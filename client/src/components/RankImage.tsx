@@ -32,8 +32,8 @@ const RankImage: React.FC<RankImageProps> = ({
   };
 
   // For reference display (like rank ladder), show highest division if no specific division is provided
-  let displayDivision = division;
-  if (showHighestDivision && !division) {
+  let displayDivision = division || null;
+  if (showHighestDivision && !displayDivision) {
     // Get the highest division for this rank
     const rankData = RANKS.find(r => r.name === rankName);
     if (rankData && rankData.divisions.length > 0) {

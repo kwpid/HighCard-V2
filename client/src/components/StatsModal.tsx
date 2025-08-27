@@ -215,10 +215,11 @@ const StatsModal = () => {
                       <div className="flex items-center gap-2">
                         <RankImage 
                           rankName={playerStats.rankedStats['1v1'].highestRank} 
+                          division={playerStats.rankedStats['1v1'].highestDivision}
                           size="sm"
                         />
                         <span className={`font-medium ${getRankColor(playerStats.rankedStats['1v1'].highestRank)}`}>
-                          {playerStats.rankedStats['1v1'].highestRank}
+                          {playerStats.rankedStats['1v1'].highestRank} {playerStats.rankedStats['1v1'].highestDivision || ''}
                         </span>
                       </div>
                     ) : (
@@ -289,10 +290,11 @@ const StatsModal = () => {
                       <div className="flex items-center gap-2">
                         <RankImage 
                           rankName={playerStats.rankedStats['2v2'].highestRank} 
+                          division={playerStats.rankedStats['2v2'].highestDivision}
                           size="sm"
                         />
                         <span className={`font-medium ${getRankColor(playerStats.rankedStats['2v2'].highestRank)}`}>
-                          {playerStats.rankedStats['2v2'].highestRank}
+                          {playerStats.rankedStats['2v2'].highestRank} {playerStats.rankedStats['2v2'].highestDivision || ''}
                         </span>
                       </div>
                     ) : (

@@ -20,6 +20,7 @@ interface RankedStats extends GameStats {
   placementMatches: number;
   peakMMR?: number;
   highestRank?: string | null;
+  highestDivision?: string | null;
 }
 
 interface PlayerStats {
@@ -63,11 +64,11 @@ const defaultStats: PlayerStats = {
   rankedStats: {
     '1v1': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
-      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null 
+      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null, highestDivision: null 
     },
     '2v2': { 
       wins: 0, losses: 0, gamesPlayed: 0, mmr: 450, 
-      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null 
+      currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null, highestDivision: null 
     },
   },
   totalSeasonWins: 0,
@@ -145,6 +146,7 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
             // Track peaks
             rankedStats.peakMMR = Math.max(rankedStats.peakMMR || rankedStats.mmr, rankedStats.mmr);
             rankedStats.highestRank = rankedStats.highestRank || rank;
+            rankedStats.highestDivision = rankedStats.highestDivision || division;
           }
         } else {
           // Regular ranked match
@@ -159,12 +161,23 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
           rankedStats.peakMMR = Math.max(rankedStats.peakMMR || rankedStats.mmr, rankedStats.mmr);
           if (!rankedStats.highestRank) {
             rankedStats.highestRank = rank;
+            rankedStats.highestDivision = division;
           } else {
             // Promote highestRank if this rank is higher in the ladder
             const ladder = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion','Card Legend'];
             const currentIdx = ladder.indexOf(rankedStats.highestRank);
             const newIdx = ladder.indexOf(rank);
-            if (newIdx > currentIdx) rankedStats.highestRank = rank;
+            if (newIdx > currentIdx) {
+              rankedStats.highestRank = rank;
+              rankedStats.highestDivision = division;
+            } else if (newIdx === currentIdx && rank !== 'Card Legend') {
+              // Same rank but potentially higher division
+              const currentDivision = rankedStats.highestDivision;
+              const divisionOrder = ['I', 'II', 'III'];
+              if (division && currentDivision && divisionOrder.indexOf(division) > divisionOrder.indexOf(currentDivision)) {
+                rankedStats.highestDivision = division;
+              }
+            }
           }
         }
       }
