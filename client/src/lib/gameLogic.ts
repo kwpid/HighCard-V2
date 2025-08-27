@@ -73,14 +73,14 @@ export const getRankFromMMR = (mmr: number): { rank: string; division: string | 
 // Calculate MMR change after a match using proper ELO formula
 export const calculateMMRChange = (won: boolean, playerMMR: number, opponentMMR: number = playerMMR): number => {
   const K_FACTOR_MAX = 45;
-  const K_FACTOR_MIN = 12;
+  const K_FACTOR_MIN = 17;
   
   // Calculate K-factor based on player's MMR (higher MMR = smaller changes)
   let kFactor = K_FACTOR_MAX;
   if (playerMMR >= 1600) { // Card Legend
     kFactor = K_FACTOR_MIN;
   } else if (playerMMR >= 1200) { // Grand Champion
-    kFactor = 12;
+    kFactor = 17;
   } else if (playerMMR >= 1000) { // Champion
     kFactor = 14;
   } else if (playerMMR >= 800) { // Diamond
