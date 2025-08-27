@@ -38,10 +38,10 @@ const generateAINames = (): string[] => [
                           "LilTycoon94","EpicGamer_072","xXBuildBroXx","AquaDude33","FlamezKnight","CookieNomNom","PixelSurge","HyperNova_99","TacoSlayer42","NinjaSocks","DankDestroyer","SlippyPenguin7","ToxicDriftX","CoolBanana_05","WolfStorm88","Jumpman_14","EliteSniper_RBLX","KrazyKoala123","CodeRedYT","MysticSlayer"
 ];
 
-// Generate competitive AI opponents (Grand Champion level)
+// Generate competitive AI opponents (Diamond+ level)
 const generateCompetitiveAI = (gameMode: '1v1' | '2v2'): LeaderboardPlayer[] => {
   const names = generateAINames();
-  const minMMR = 1200; // Grand Champion minimum
+  const minMMR = 1000; // Diamond minimum
   const maxMMR = 2200;
   const personalities: ('aggressive' | 'conservative' | 'adaptive' | 'random')[] = 
     ['aggressive', 'conservative', 'adaptive', 'random'];
@@ -134,11 +134,11 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
       
       newStatsLeaderboard = newStatsLeaderboard.sort((a, b) => (b.totalWins || 0) - (a.totalWins || 0));
 
-      // Update competitive leaderboards if player is Grand Champion
+      // Update competitive leaderboards if player is Diamond or higher
       let newComp1v1 = [...state.competitiveLeaderboard1v1];
       let newComp2v2 = [...state.competitiveLeaderboard2v2];
 
-      if (stats.rankedStats['1v1'].mmr >= 1200) {
+      if (stats.rankedStats['1v1'].mmr >= 1000) {
         const existing1v1Index = newComp1v1.findIndex(p => p.name === playerName && !p.isAI);
         if (existing1v1Index >= 0) {
           newComp1v1[existing1v1Index].mmr = stats.rankedStats['1v1'].mmr;
@@ -154,7 +154,7 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
         newComp1v1 = newComp1v1.sort((a, b) => (b.mmr || 0) - (a.mmr || 0));
       }
 
-      if (stats.rankedStats['2v2'].mmr >= 1200) {
+      if (stats.rankedStats['2v2'].mmr >= 1000) {
         const existing2v2Index = newComp2v2.findIndex(p => p.name === playerName && !p.isAI);
         if (existing2v2Index >= 0) {
           newComp2v2[existing2v2Index].mmr = stats.rankedStats['2v2'].mmr;

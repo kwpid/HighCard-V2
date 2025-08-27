@@ -26,14 +26,10 @@ function App() {
     initializePlayer();
     initializeLeaderboards();
 
-    // Auto-forfeit if a ranked game was in progress (refresh detection)
+    // Clear any incomplete games without MMR penalty
     try {
       const inProgressRaw = localStorage.getItem('highcard-game-in-progress');
       if (inProgressRaw) {
-        const inProgress = JSON.parse(inProgressRaw) as { mode: 'casual' | 'ranked'; type: '1v1' | '2v2'; opponentMMR: number };
-        if (inProgress.mode === 'ranked') {
-          updateStats('ranked', inProgress.type, false, inProgress.opponentMMR || undefined);
-        }
         localStorage.removeItem('highcard-game-in-progress');
         setCurrentScreen('menu');
       }
@@ -53,8 +49,7 @@ function App() {
       <StatsModal />
       <SettingsModal />
       <TutorialModal />
-      {/* Leaderboards temporarily disabled */}
-      {/* <LeaderboardModal /> */}
+      <LeaderboardModal />
       <InventoryModal />
       <RewardModal />
       <NewsModal />

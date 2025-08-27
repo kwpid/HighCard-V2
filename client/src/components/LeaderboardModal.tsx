@@ -66,7 +66,7 @@ const LeaderboardModal = () => {
     <div className="space-y-4">
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-white mb-2">Competitive Leaderboard</h3>
-        <p className="text-gray-400 text-sm">Grand Champion+ players only</p>
+        <p className="text-gray-400 text-sm">Diamond+ players only</p>
       </div>
 
       {/* Tab selector for 1v1 vs 2v2 */}
