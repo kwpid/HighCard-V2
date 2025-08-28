@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
+import { useTournamentStore } from "../lib/stores/useTournamentStore";
 import { Play, Trophy, Package, HelpCircle, Settings, BarChart3, Star, Users, Lock, Newspaper } from "lucide-react";
 import { getRankFromMMR } from "../lib/gameLogic";
 import XPProgress from "./XPProgress";
@@ -9,7 +10,9 @@ import { getFeaturedNews } from "../lib/news";
 const Menu = () => {
   const { setCurrentScreen, setSelectedMode, setModalsOpen } = useGameStore();
   const { playerStats, currentSeason, getXPProgress, username } = usePlayerStore();
+  const { getNextTournaments, getCurrentTournament } = useTournamentStore();
   const [timeToNextSeason, setTimeToNextSeason] = useState("");
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const featuredNews = getFeaturedNews();
 
   useEffect(() => {
@@ -32,10 +35,11 @@ const Menu = () => {
       const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
       setTimeToNextSeason(`${days}d ${hours}h ${minutes}m`);
+      setCurrentTime(Date.now());
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 60000); // Update every minute
+    const interval = setInterval(updateCountdown, 1000); // Update every second for tournament timer
 
     return () => clearInterval(interval);
   }, []);
@@ -58,6 +62,35 @@ const Menu = () => {
     } else {
       return { rank: rank2v2.currentRank, division: rank2v2.division, mmr: rank2v2.mmr };
     }
+  };
+
+  const getTournamentStatus = () => {
+    const currentTournament = getCurrentTournament();
+    const nextTournaments = getNextTournaments();
+    
+    if (currentTournament) {
+      return { status: 'open', text: 'OPEN NOW!', timer: null };
+    }
+    
+    if (nextTournaments.length > 0) {
+      const nextTournament = nextTournaments[0];
+      const timeUntil = nextTournament.startTime - currentTime;
+      
+      if (timeUntil <= 0) {
+        return { status: 'open', text: 'OPEN NOW!', timer: null };
+      }
+      
+      const minutes = Math.floor(timeUntil / 60000);
+      const seconds = Math.floor((timeUntil % 60000) / 1000);
+      
+      if (minutes > 0) {
+        return { status: 'waiting', text: 'Tournaments', timer: `${minutes}m ${seconds}s` };
+      } else {
+        return { status: 'waiting', text: 'Tournaments', timer: `${seconds}s` };
+      }
+    }
+    
+    return { status: 'waiting', text: 'Tournaments', timer: 'Loading...' };
   };
 
   const getRankColor = (rank: string | null) => {
@@ -234,8 +267,8 @@ const Menu = () => {
         <button
           onClick={() => setModalsOpen('tournament', true)}
           disabled={playerStats.level < 7}
-          className={`relative bg-gradient-to-r from-yellow-600 to-yellow-700 text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
-                   ${playerStats.level < 7 ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:from-yellow-500 hover:to-yellow-600 hover:scale-105 hover:shadow-xl neon-glow'}`}
+          className={`relative bg-gradient-to-r ${getTournamentStatus().status === 'open' ? 'from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 animate-pulse' : 'from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600'} text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
+                   ${playerStats.level < 7 ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:scale-105 hover:shadow-xl neon-glow'}`}
         >
           {playerStats.level < 7 && (
             <div className="absolute -top-3 -right-3 bg-gray-800 border border-gray-600 text-gray-200 text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
@@ -244,10 +277,17 @@ const Menu = () => {
           )}
           <div className="flex items-center justify-center gap-3 mb-3">
             <Trophy size={32} />
-            <span className="text-2xl">Tournaments</span>
+            <span className="text-2xl">{getTournamentStatus().text}</span>
           </div>
           <div className="text-sm opacity-80">
-            Competitive brackets every 10 minutes
+            {getTournamentStatus().timer ? (
+              <div className="flex flex-col items-center gap-1">
+                <div>Next tournament in:</div>
+                <div className="font-bold text-lg">{getTournamentStatus().timer}</div>
+              </div>
+            ) : (
+              'Competitive brackets every 10 minutes'
+            )}
           </div>
           <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
             <div className="bg-black bg-opacity-30 rounded p-2">
