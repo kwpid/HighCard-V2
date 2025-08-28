@@ -8,8 +8,15 @@ import { getRankFromMMR } from "../lib/gameLogic";
 const LeaderboardModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
   const { username, playerStats } = usePlayerStore();
-  const { statsLeaderboard, competitiveLeaderboard1v1, competitiveLeaderboard2v2 } = useLeaderboardStore();
+  const { statsLeaderboard, competitiveLeaderboard1v1, competitiveLeaderboard2v2, simulateAIProgression } = useLeaderboardStore();
   const [activeTab, setActiveTab] = useState<'stats' | 'competitive'>('stats');
+
+  // Run AI progression simulation when modal opens
+  useEffect(() => {
+    if (modalsOpen.leaderboards) {
+      simulateAIProgression();
+    }
+  }, [modalsOpen.leaderboards, simulateAIProgression]);
 
   if (!modalsOpen.leaderboards) return null;
 

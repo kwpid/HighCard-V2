@@ -14,11 +14,14 @@ interface LeaderboardState {
   statsLeaderboard: LeaderboardPlayer[];
   competitiveLeaderboard1v1: LeaderboardPlayer[];
   competitiveLeaderboard2v2: LeaderboardPlayer[];
+  lastSeasonProgressionTime: number;
   
   // Actions
   initializeLeaderboards: () => void;
   updatePlayerOnLeaderboards: (playerName: string, stats: any) => void;
   getOpponentByMMR: (playerMMR: number, gameMode: '1v1' | '2v2') => LeaderboardPlayer | null;
+  simulateAIProgression: () => void;
+  progressAIStats: (currentSeason: number) => void;
 }
 
 // Generate AI names for leaderboards
@@ -39,16 +42,16 @@ const generateAINames = (): string[] => [
 ];
 
 // Generate competitive AI opponents (Diamond+ level)
-const generateCompetitiveAI = (gameMode: '1v1' | '2v2'): LeaderboardPlayer[] => {
+const generateCompetitiveAI = (gameMode: '1v1' | '2v2', seasonBoost: number = 0): LeaderboardPlayer[] => {
   const names = generateAINames();
-  const minMMR = 1000; // Diamond minimum
-  const maxMMR = 2200;
+  const minMMR = 1000 + seasonBoost; // Diamond minimum + seasonal progression
+  const maxMMR = 2200 + seasonBoost;
   const personalities: ('aggressive' | 'conservative' | 'adaptive' | 'random')[] = 
     ['aggressive', 'conservative', 'adaptive', 'random'];
   
   return names.map((name, index) => ({
     id: `competitive-${gameMode}-${index}`,
-    name: `${name}_${gameMode}`,
+    name: name,
     mmr: Math.floor(Math.random() * (maxMMR - minMMR) + minMMR),
     isAI: true,
     gameMode,
@@ -57,15 +60,15 @@ const generateCompetitiveAI = (gameMode: '1v1' | '2v2'): LeaderboardPlayer[] => 
 };
 
 // Generate casual AI for stats leaderboard
-const generateCasualAI = (): LeaderboardPlayer[] => {
+const generateCasualAI = (seasonMultiplier: number = 1): LeaderboardPlayer[] => {
   const names = generateAINames().slice(0, 50);
   const personalities: ('aggressive' | 'conservative' | 'adaptive' | 'random')[] = 
     ['aggressive', 'conservative', 'adaptive', 'random'];
   
   return names.map((name, index) => ({
     id: `casual-${index}`,
-    name: `${name}_Casual`,
-    totalWins: Math.floor(Math.random() * 1000) + 50,
+    name: name,
+    totalWins: Math.floor((Math.random() * 1000 + 50) * seasonMultiplier),
     isAI: true,
     gameMode: (Math.random() > 0.5 ? '1v1' : '2v2') as '1v1' | '2v2',
     aiPersonality: personalities[index % personalities.length]
@@ -76,6 +79,7 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
   statsLeaderboard: [],
   competitiveLeaderboard1v1: [],
   competitiveLeaderboard2v2: [],
+  lastSeasonProgressionTime: Date.now(),
 
   initializeLeaderboards: () => {
     // Try to load from localStorage first
@@ -86,6 +90,10 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
     let statsLeaderboard: LeaderboardPlayer[];
     let competitiveLeaderboard1v1: LeaderboardPlayer[];
     let competitiveLeaderboard2v2: LeaderboardPlayer[];
+
+    // Load progression time
+    const savedProgressionTime = localStorage.getItem('highcard-leaderboard-progression-time');
+    const lastProgressionTime = savedProgressionTime ? parseInt(savedProgressionTime) : Date.now();
 
     if (savedStats && savedComp1v1 && savedComp2v2) {
       // Load existing leaderboards
@@ -102,13 +110,20 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
       localStorage.setItem('highcard-stats-leaderboard', JSON.stringify(statsLeaderboard));
       localStorage.setItem('highcard-competitive-1v1-leaderboard', JSON.stringify(competitiveLeaderboard1v1));
       localStorage.setItem('highcard-competitive-2v2-leaderboard', JSON.stringify(competitiveLeaderboard2v2));
+      localStorage.setItem('highcard-leaderboard-progression-time', lastProgressionTime.toString());
     }
 
     set({
       statsLeaderboard,
       competitiveLeaderboard1v1,
-      competitiveLeaderboard2v2
+      competitiveLeaderboard2v2,
+      lastSeasonProgressionTime: lastProgressionTime
     });
+    
+    // Run initial AI progression check
+    setTimeout(() => {
+      get().simulateAIProgression();
+    }, 1000);
   },
 
   updatePlayerOnLeaderboards: (playerName, stats) => {
@@ -194,5 +209,90 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
     }
     
     return null;
+  },
+
+  simulateAIProgression: () => {
+    const now = Date.now();
+    const { lastSeasonProgressionTime } = get();
+    const timeSinceLastProgression = now - lastSeasonProgressionTime;
+    
+    // Simulate AI progression every 30 minutes (1800000 ms)
+    if (timeSinceLastProgression > 1800000) {
+      set((state) => {
+        const newState = { ...state };
+        
+        // Randomly update AI MMRs in competitive leaderboards
+        const updateAIPlayer = (player: LeaderboardPlayer): LeaderboardPlayer => {
+          if (!player.isAI) return player;
+          
+          const mmrChange = Math.floor(Math.random() * 60) - 30; // ±30 MMR change
+          const newMMR = Math.max(1000, Math.min(2500, (player.mmr || 1200) + mmrChange));
+          
+          return { ...player, mmr: newMMR };
+        };
+        
+        const updateWinsPlayer = (player: LeaderboardPlayer): LeaderboardPlayer => {
+          if (!player.isAI) return player;
+          
+          const winsIncrease = Math.floor(Math.random() * 20) + 1; // 1-20 more wins
+          const newWins = (player.totalWins || 0) + winsIncrease;
+          
+          return { ...player, totalWins: newWins };
+        };
+        
+        // Update competitive leaderboards
+        newState.competitiveLeaderboard1v1 = newState.competitiveLeaderboard1v1
+          .map(updateAIPlayer)
+          .sort((a, b) => (b.mmr || 0) - (a.mmr || 0));
+          
+        newState.competitiveLeaderboard2v2 = newState.competitiveLeaderboard2v2
+          .map(updateAIPlayer)
+          .sort((a, b) => (b.mmr || 0) - (a.mmr || 0));
+          
+        // Update stats leaderboard
+        newState.statsLeaderboard = newState.statsLeaderboard
+          .map(updateWinsPlayer)
+          .sort((a, b) => (b.totalWins || 0) - (a.totalWins || 0));
+          
+        newState.lastSeasonProgressionTime = now;
+        
+        // Save updated leaderboards
+        localStorage.setItem('highcard-stats-leaderboard', JSON.stringify(newState.statsLeaderboard));
+        localStorage.setItem('highcard-competitive-1v1-leaderboard', JSON.stringify(newState.competitiveLeaderboard1v1));
+        localStorage.setItem('highcard-competitive-2v2-leaderboard', JSON.stringify(newState.competitiveLeaderboard2v2));
+        localStorage.setItem('highcard-leaderboard-progression-time', now.toString());
+        
+        return newState;
+      });
+    }
+  },
+
+  progressAIStats: (currentSeason: number) => {
+    // Called when a new season starts to boost AI stats
+    const seasonBoost = currentSeason * 50; // 50 MMR boost per season
+    const seasonMultiplier = 1 + (currentSeason * 0.2); // 20% more wins per season
+    
+    set((state) => {
+      const newStatsLeaderboard = generateCasualAI(seasonMultiplier);
+      const newComp1v1 = generateCompetitiveAI('1v1', seasonBoost);
+      const newComp2v2 = generateCompetitiveAI('2v2', seasonBoost);
+      
+      // Save new leaderboards
+      localStorage.setItem('highcard-stats-leaderboard', JSON.stringify(newStatsLeaderboard));
+      localStorage.setItem('highcard-competitive-1v1-leaderboard', JSON.stringify(newComp1v1));
+      localStorage.setItem('highcard-competitive-2v2-leaderboard', JSON.stringify(newComp2v2));
+      
+      return {
+        statsLeaderboard: newStatsLeaderboard,
+        competitiveLeaderboard1v1: newComp1v1,
+        competitiveLeaderboard2v2: newComp2v2,
+        lastSeasonProgressionTime: Date.now()
+      };
+    });
   }
 }));
+
+// Register store globally for cross-store communication
+if (typeof window !== 'undefined') {
+  (window as any).__leaderboardStore = useLeaderboardStore;
+}

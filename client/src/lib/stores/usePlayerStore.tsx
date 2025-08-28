@@ -266,12 +266,33 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     const now = new Date();
     const seasonStart = new Date('2025-09-01T00:00:00Z');
     
+    const previousSeason = get().currentSeason;
+    let newSeason = 0;
+    
     if (now < seasonStart) {
-      set({ currentSeason: 0 }); // Pre-season
+      newSeason = 0; // Pre-season
     } else {
       const monthsSinceStart = (now.getFullYear() - seasonStart.getFullYear()) * 12 + 
                               (now.getMonth() - seasonStart.getMonth());
-      set({ currentSeason: Math.max(1, monthsSinceStart + 1) });
+      newSeason = Math.max(1, monthsSinceStart + 1);
+    }
+    
+    set({ currentSeason: newSeason });
+    
+    // If season has advanced, update AI leaderboard stats
+    if (newSeason > previousSeason && typeof window !== 'undefined') {
+      setTimeout(() => {
+        try {
+          // Access the leaderboard store that should be available on window
+          const leaderboardStore = (window as any).__leaderboardStore;
+          if (leaderboardStore) {
+            const { progressAIStats } = leaderboardStore.getState();
+            progressAIStats(newSeason);
+          }
+        } catch (error) {
+          console.error('Error updating AI stats for new season:', error);
+        }
+      }, 100);
     }
   },
 
