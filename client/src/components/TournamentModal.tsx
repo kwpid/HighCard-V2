@@ -7,7 +7,7 @@ import RankImage from "./RankImage";
 
 const TournamentModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
-  const { playerStats } = usePlayerStore();
+  const { playerStats, currentSeason } = usePlayerStore();
   const { 
     tournaments, 
     generateTournaments, 
@@ -75,13 +75,16 @@ const TournamentModal = () => {
       return;
     }
 
+    console.log('Attempting to join tournament:', tournamentId);
     const success = joinTournament(tournamentId);
+    console.log('Join tournament result:', success);
+    
     if (success) {
-      alert('Successfully joined tournament!');
+      alert('Successfully joined tournament! The tournament will begin shortly.');
       setModalsOpen('tournament', false);
       // Here you would typically navigate to tournament queue/lobby
     } else {
-      alert('Failed to join tournament. Please try again.');
+      alert('Failed to join tournament. Make sure the tournament is available and you meet the requirements.');
     }
   };
 
@@ -265,7 +268,7 @@ const TournamentModal = () => {
               <div className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Tournament Titles</h3>
                 <div className="text-sm text-gray-300 space-y-2">
-                  <p>🏆 <strong>Win a tournament</strong> to earn: "S{playerStats.level} {playerTournamentRank.rank.toUpperCase()} TOURNAMENT WINNER"</p>
+                  <p>🏆 <strong>Win a tournament</strong> to earn: "S{currentSeason} {playerTournamentRank.rank.toUpperCase()} TOURNAMENT WINNER"</p>
                   <p>⭐ <strong>Win 3 tournaments in a season</strong> to unlock a special variant title!</p>
                   <div className="mt-3 space-y-1">
                     <p className="text-xs text-gray-400">Title Colors:</p>

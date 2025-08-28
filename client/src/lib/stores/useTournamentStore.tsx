@@ -58,10 +58,17 @@ interface TournamentState {
 // Helper function to determine tournament rank based on highest MMR
 const getPlayerTournamentRank = () => {
   const playerStore = (window as any).__playerStore?.getState?.();
-  if (!playerStore) return { rank: 'Bronze', division: 'I' };
+  if (!playerStore || !playerStore.playerStats) return { rank: 'Bronze', division: 'I' };
   
   const { rankedStats } = playerStore.playerStats;
-  const highestMMR = Math.max(rankedStats['1v1'].mmr, rankedStats['2v2'].mmr);
+  if (!rankedStats || (!rankedStats['1v1'] && !rankedStats['2v2'])) {
+    return { rank: 'Bronze', division: 'I' };
+  }
+  
+  const mmr1v1 = rankedStats['1v1']?.mmr || 0;
+  const mmr2v2 = rankedStats['2v2']?.mmr || 0;
+  const highestMMR = Math.max(mmr1v1, mmr2v2);
+  
   return getRankFromMMR(highestMMR);
 };
 
@@ -201,13 +208,35 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
     const { tournaments } = get();
     const tournament = tournaments.find(t => t.id === tournamentId);
     
-    if (!tournament || tournament.status !== 'upcoming') {
+    console.log('Tournament found:', tournament);
+    console.log('Tournament status:', tournament?.status);
+    
+    if (!tournament) {
+      console.error('Tournament not found:', tournamentId);
+      return false;
+    }
+    
+    if (tournament.status !== 'upcoming') {
+      console.error('Tournament status invalid:', tournament.status);
       return false;
     }
 
     // Check if player level requirement is met (level 7)
     const playerStore = (window as any).__playerStore?.getState?.();
-    if (!playerStore || playerStore.playerStats.level < 7) {
+    if (!playerStore) {
+      console.error('Player store not found');
+      return false;
+    }
+    
+    if (playerStore.playerStats.level < 7) {
+      console.error('Player level too low:', playerStore.playerStats.level);
+      return false;
+    }
+
+    // Check if player is already in tournament
+    const alreadyJoined = tournament.participants.some(p => p.isPlayer);
+    if (alreadyJoined) {
+      console.error('Player already joined this tournament');
       return false;
     }
 
@@ -220,6 +249,8 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       mmr: Math.max(playerStore.playerStats.rankedStats['1v1'].mmr, playerStore.playerStats.rankedStats['2v2'].mmr),
       isPlayer: true
     };
+
+    console.log('Adding player to tournament:', playerParticipant);
 
     // Add player to tournament and regenerate bracket
     const allParticipants = [...tournament.participants, playerParticipant];
@@ -240,6 +271,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       activeTournament: updatedTournament
     });
 
+    console.log('Successfully joined tournament');
     return true;
   },
 
