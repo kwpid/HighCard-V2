@@ -170,7 +170,7 @@ const Menu = () => {
       )}
 
       {/* Main Menu Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full max-w-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full max-w-4xl">
         {/* Casual Button */}
         <button
           onClick={() => handleModeSelect('casual')}
@@ -226,6 +226,35 @@ const Menu = () => {
                 2v2: {playerStats.rankedStats['2v2'].currentRank || 'Unranked'}
               </div>
               <div>{playerStats.rankedStats['2v2'].mmr} MMR</div>
+            </div>
+          </div>
+        </button>
+
+        {/* Tournament Button */}
+        <button
+          onClick={() => setModalsOpen('tournament', true)}
+          disabled={playerStats.level < 7}
+          className={`relative bg-gradient-to-r from-yellow-600 to-yellow-700 text-white font-semibold py-6 px-8 rounded-lg transition-all duration-300 
+                   ${playerStats.level < 7 ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:from-yellow-500 hover:to-yellow-600 hover:scale-105 hover:shadow-xl neon-glow'}`}
+        >
+          {playerStats.level < 7 && (
+            <div className="absolute -top-3 -right-3 bg-gray-800 border border-gray-600 text-gray-200 text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
+              <Lock size={14} /> Reach Lv 7
+            </div>
+          )}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Trophy size={32} />
+            <span className="text-2xl">Tournaments</span>
+          </div>
+          <div className="text-sm opacity-80">
+            Competitive brackets every 10 minutes
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div>1v1: {playerStats.tournamentStats?.['1v1']?.wins || 0}W/{playerStats.tournamentStats?.['1v1']?.losses || 0}L</div>
+            </div>
+            <div className="bg-black bg-opacity-30 rounded p-2">
+              <div>2v2: {playerStats.tournamentStats?.['2v2']?.wins || 0}W/{playerStats.tournamentStats?.['2v2']?.losses || 0}L</div>
             </div>
           </div>
         </button>

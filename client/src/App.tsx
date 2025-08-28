@@ -12,6 +12,7 @@ import LeaderboardModal from "./components/LeaderboardModal";
 import InventoryModal from "./components/InventoryModal";
 import RewardModal from "./components/RewardModal";
 import NewsModal from "./components/NewsModal";
+import TournamentModal from "./components/TournamentModal";
 import { useLeaderboardStore } from "./lib/stores/useLeaderboardStore";
 import "@fontsource/inter";
 
@@ -53,6 +54,7 @@ function App() {
       <InventoryModal />
       <RewardModal />
       <NewsModal />
+      <TournamentModal />
     </div>
   );
 }

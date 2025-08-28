@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type GameMode = 'casual' | 'ranked';
+type GameMode = 'casual' | 'ranked' | 'tournament';
 type GameType = '1v1' | '2v2';
 type Screen = 'menu' | 'mode-select' | 'queue' | 'game';
 
@@ -12,6 +12,7 @@ interface ModalsState {
   leaderboards: boolean;
   news: boolean;
   rewards: boolean;
+  tournament: boolean;
 }
 
 interface GameState {
@@ -46,6 +47,7 @@ export const useGameStore = create<GameState>((set: any, get: any) => ({
     leaderboards: false,
     news: false,
     rewards: false,
+    tournament: false,
   },
   rewardQueue: [],
   rewardModalOpen: false,

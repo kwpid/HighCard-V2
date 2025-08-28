@@ -280,7 +280,7 @@ const ModeSelectScreen = () => {
                             <div className="text-gray-400">Your 1v1</div>
                             <div className="flex items-center gap-2">
                               <RankImage 
-                                rankName={current1v1.currentRank} 
+                                rankName={current1v1.currentRank || 'Bronze'} 
                                 division={current1v1.division}
                                 size="sm"
                               />
@@ -296,7 +296,7 @@ const ModeSelectScreen = () => {
                             <div className="text-gray-400">Your 2v2</div>
                             <div className="flex items-center gap-2">
                               <RankImage 
-                                rankName={current2v2.currentRank} 
+                                rankName={current2v2.currentRank || 'Bronze'} 
                                 division={current2v2.division}
                                 size="sm"
                               />

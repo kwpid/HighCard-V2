@@ -4,7 +4,7 @@ import { useLeaderboardStore } from "./useLeaderboardStore";
 import { calculateXPGain, checkLevelUp, calculateXPProgress } from "../xpSystem";
 import { levelTitles } from "../titles";
 
-type GameMode = 'casual' | 'ranked';
+type GameMode = 'casual' | 'ranked' | 'tournament';
 type GameType = '1v1' | '2v2';
 
 interface GameStats {
@@ -32,10 +32,17 @@ interface PlayerStats {
     '1v1': RankedStats;
     '2v2': RankedStats;
   };
+  tournamentStats: {
+    '1v1': GameStats;
+    '2v2': GameStats;
+  };
+  tournamentWins: {
+    currentSeason: number;
+  };
   totalSeasonWins: number;
   level: number;
   xp: number;
-  ownedTitles?: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }[];
+  ownedTitles?: { id: string; name: string; type: 'regular' | 'ranked' | 'tournament'; season?: number; rankColor?: string; glow?: boolean }[];
   equippedTitleId?: string | null;
 }
 
@@ -52,7 +59,7 @@ interface PlayerState {
   getXPProgress: () => ReturnType<typeof calculateXPProgress>;
   resetAllStats: () => void;
   equipTitle: (id: string | null) => void;
-  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }) => boolean;
+  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked' | 'tournament'; season?: number; rankColor?: string; glow?: boolean }) => boolean;
   getSeasonRewardStatus: () => { currentTier: string; nextTier: string | null; winsInTier: number; winsNeeded: number };
 }
 
@@ -71,6 +78,13 @@ const defaultStats: PlayerStats = {
       currentRank: null, division: null, placementMatches: 0, peakMMR: 450, highestRank: null, highestDivision: null 
     },
   },
+  tournamentStats: {
+    '1v1': { wins: 0, losses: 0, gamesPlayed: 0 },
+    '2v2': { wins: 0, losses: 0, gamesPlayed: 0 },
+  },
+  tournamentWins: {
+    currentSeason: 0,
+  },
   totalSeasonWins: 0,
   level: 1,
   xp: 0,
@@ -87,8 +101,9 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     set((state: PlayerState) => {
       const newStats = { ...state.playerStats };
       
-      // Calculate and add XP
-      const xpGained = calculateXPGain(won, gameMode, gameType);
+      // Calculate and add XP (tournament games give same XP as casual)
+      const xpGameMode = gameMode === 'tournament' ? 'casual' : gameMode;
+      const xpGained = calculateXPGain(won, xpGameMode as 'casual' | 'ranked', gameType);
       newStats.xp += xpGained;
       
       // Check for level up
@@ -117,6 +132,15 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
         } else {
           casualStats.losses += 1;
         }
+      } else if (gameMode === 'tournament') {
+        const tournamentStats = newStats.tournamentStats[gameType];
+        tournamentStats.gamesPlayed += 1;
+        if (won) {
+          tournamentStats.wins += 1;
+        } else {
+          tournamentStats.losses += 1;
+        }
+        // Tournament games don't affect MMR but do count towards wins/losses
       } else {
         const rankedStats = newStats.rankedStats[gameType];
         rankedStats.gamesPlayed += 1;
