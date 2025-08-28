@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { getRankFromMMR } from "../gameLogic";
+import { usePlayerStore } from "./usePlayerStore";
 
 type TournamentGameType = '1v1' | '2v2';
 
@@ -57,7 +58,7 @@ interface TournamentState {
 
 // Helper function to determine tournament rank based on highest MMR
 const getPlayerTournamentRank = () => {
-  const playerStore = (window as any).__playerStore?.getState?.();
+  const playerStore = usePlayerStore.getState();
   if (!playerStore || !playerStore.playerStats) return { rank: 'Bronze', division: 'I' };
   
   const { rankedStats } = playerStore.playerStats;
@@ -166,7 +167,7 @@ const generateTournamentSchedule = (): Tournament[] => {
         endTime,
         participants: aiParticipants,
         bracket: createBracket(aiParticipants),
-        status: i === 0 ? 'active' : 'upcoming',
+        status: 'upcoming',
         requiredRank: playerRank.rank
       });
     });
@@ -222,7 +223,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
     }
 
     // Check if player level requirement is met (level 7)
-    const playerStore = (window as any).__playerStore?.getState?.();
+    const playerStore = usePlayerStore.getState();
     if (!playerStore) {
       console.error('Player store not found');
       return false;
@@ -288,7 +289,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
   awardTournamentTitle: (tournament: Tournament, participant: TournamentParticipant) => {
     if (!participant.isPlayer) return;
     
-    const playerStore = (window as any).__playerStore?.getState?.();
+    const playerStore = usePlayerStore.getState();
     if (!playerStore) return;
 
     const currentSeason = playerStore.currentSeason || 1;
