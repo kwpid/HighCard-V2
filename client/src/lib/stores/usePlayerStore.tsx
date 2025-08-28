@@ -234,6 +234,21 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
         // Ensure level and xp exist for backward compatibility
         if (parsedStats.level === undefined) parsedStats.level = 1;
         if (parsedStats.xp === undefined) parsedStats.xp = 0;
+        
+        // Initialize tournament stats if missing
+        if (!parsedStats.tournamentStats) {
+          parsedStats.tournamentStats = {
+            '1v1': { wins: 0, losses: 0, gamesPlayed: 0 },
+            '2v2': { wins: 0, losses: 0, gamesPlayed: 0 },
+          };
+        }
+        if (!parsedStats.tournamentWins) {
+          parsedStats.tournamentWins = { currentSeason: 0 };
+        }
+        if (!parsedStats.ownedTitles) {
+          parsedStats.ownedTitles = [];
+        }
+        
         set({ playerStats: parsedStats });
       } catch (error) {
         console.error('Error parsing saved player stats:', error);
@@ -302,7 +317,7 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     });
   },
 
-  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked'; season?: number; rankColor?: string; glow?: boolean }) => {
+  addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked' | 'tournament'; season?: number; rankColor?: string; glow?: boolean }) => {
     const current = get().playerStats;
     const exists = (current.ownedTitles || []).some((t: any) => t.id === title.id);
     if (exists) return false;
