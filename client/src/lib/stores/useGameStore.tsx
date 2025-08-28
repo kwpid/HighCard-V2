@@ -87,3 +87,8 @@ export const useGameStore = create<GameState>((set: any, get: any) => ({
     return first;
   },
 }));
+
+// Add window reference for cross-store access
+if (typeof window !== 'undefined') {
+  (window as any).__gameStore = useGameStore;
+}

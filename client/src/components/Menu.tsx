@@ -10,7 +10,7 @@ import { getFeaturedNews } from "../lib/news";
 const Menu = () => {
   const { setCurrentScreen, setSelectedMode, setModalsOpen } = useGameStore();
   const { playerStats, currentSeason, getXPProgress, username } = usePlayerStore();
-  const { getNextTournaments, getCurrentTournament } = useTournamentStore();
+  const { getNextTournaments, getCurrentTournament, playerTournamentState, startTournamentGame } = useTournamentStore();
   const [timeToNextSeason, setTimeToNextSeason] = useState("");
   const [currentTime, setCurrentTime] = useState(Date.now());
   const featuredNews = getFeaturedNews();
@@ -45,12 +45,29 @@ const Menu = () => {
   }, []);
 
   const handleModeSelect = (mode: 'casual' | 'ranked') => {
+    // Prevent queuing if in tournament
+    if (playerTournamentState.isInTournament) {
+      alert('You are currently in a tournament! Finish your tournament games first.');
+      return;
+    }
+    
     if (mode === 'ranked' && playerStats.level < 5) {
       alert('Reach Level 5 to unlock Ranked. Keep playing Casual to level up!');
       return;
     }
     setSelectedMode(mode);
     setCurrentScreen('mode-select');
+  };
+
+  const handleTournamentGame = () => {
+    if (playerTournamentState.isInTournament) {
+      const currentTournament = getCurrentTournament();
+      if (currentTournament && currentTournament.status === 'active') {
+        startTournamentGame();
+      } else {
+        alert('Waiting for tournament to start...');
+      }
+    }
   };
 
   const getHighestRank = () => {
@@ -120,8 +137,51 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-8">
+      {/* Tournament Status Banner */}
+      {playerTournamentState.isInTournament && (
+        <div className="fixed top-0 left-0 right-0 bg-purple-600 text-white p-4 z-50">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Trophy size={24} className="text-yellow-400" />
+              <div>
+                <div className="font-bold text-lg">
+                  Tournament in Progress - Round {playerTournamentState.currentRound}/5
+                </div>
+                <div className="text-purple-200 text-sm">
+                  {playerTournamentState.currentRound <= 3 ? 'Best of 1' : 'Best of 3'}
+                  {playerTournamentState.currentRound >= 4 && ` - Game ${playerTournamentState.currentGame}`}
+                  {playerTournamentState.opponentName && ` vs ${playerTournamentState.opponentName}`}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-purple-200">Tournament Record</div>
+                <div className="font-bold">{playerTournamentState.wins}W - {playerTournamentState.losses}L</div>
+              </div>
+              {(() => {
+                const currentTournament = getCurrentTournament();
+                const canPlay = currentTournament && currentTournament.status === 'active';
+                return (
+                  <button
+                    onClick={handleTournamentGame}
+                    disabled={!canPlay}
+                    className={`px-4 py-2 rounded font-bold transition-colors ${
+                      canPlay 
+                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                    }`}
+                  >
+                    {canPlay ? 'PLAY TOURNAMENT GAME' : 'WAITING FOR TOURNAMENT'}
+                  </button>
+                );
+              })()} 
+            </div>
+          </div>
+        </div>
+      )}
       {/* Player Card - Top Left */}
-      <div className="absolute top-6 left-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
+      <div className={`absolute top-6 left-6 bg-gray-800 rounded-lg p-4 border border-gray-700 ${playerTournamentState.isInTournament ? 'mt-20' : ''}`}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-lg">
@@ -136,7 +196,7 @@ const Menu = () => {
       </div>
 
       {/* XP Progress - Top Right */}
-      <div className="absolute top-6 right-6 w-48">
+      <div className={`absolute top-6 right-6 w-48 ${playerTournamentState.isInTournament ? 'mt-20' : ''}`}>
         <XPProgress xpProgress={getXPProgress()} showDetails={false} />
       </div>
 

@@ -81,9 +81,8 @@ const TournamentModal = () => {
     console.log('Join tournament result:', success);
     
     if (success) {
-      alert('Successfully joined tournament! The tournament will begin shortly.');
       setModalsOpen('tournament', false);
-      // Here you would typically navigate to tournament queue/lobby
+      alert('Successfully joined tournament! You will see a purple banner when the tournament starts.');
     } else {
       alert('Failed to join tournament. Make sure the tournament is available and you meet the requirements.');
     }

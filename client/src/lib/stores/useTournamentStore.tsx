@@ -40,10 +40,23 @@ interface TournamentBracket {
   rounds: number;
 }
 
+interface PlayerTournamentState {
+  isInTournament: boolean;
+  tournamentId: string | null;
+  currentRound: number; // 1-5
+  currentGame: number; // For best of 3 rounds
+  wins: number;
+  losses: number;
+  isEliminated: boolean;
+  opponentName: string | null;
+  tournamentStartTime: number | null;
+}
+
 interface TournamentState {
   tournaments: Tournament[];
   activeTournament: Tournament | null;
   currentMatch: TournamentMatch | null;
+  playerTournamentState: PlayerTournamentState;
   
   // Actions
   generateTournaments: () => void;
@@ -55,6 +68,10 @@ interface TournamentState {
   advancePlayerInTournament: () => void;
   awardTournamentTitle: (tournament: Tournament, participant: TournamentParticipant) => void;
   forceStartTournament: () => boolean;
+  leaveTournament: () => void;
+  startTournamentGame: () => void;
+  finishTournamentGame: (won: boolean) => void;
+  resetPlayerTournamentState: () => void;
 }
 
 // Helper function to determine tournament rank based on highest MMR
@@ -192,10 +209,23 @@ const generateTournamentSchedule = (): Tournament[] => {
   return tournaments;
 };
 
+const defaultPlayerTournamentState: PlayerTournamentState = {
+  isInTournament: false,
+  tournamentId: null,
+  currentRound: 1,
+  currentGame: 1,
+  wins: 0,
+  losses: 0,
+  isEliminated: false,
+  opponentName: null,
+  tournamentStartTime: null,
+};
+
 export const useTournamentStore = create<TournamentState>((set, get) => ({
   tournaments: [],
   activeTournament: null,
   currentMatch: null,
+  playerTournamentState: defaultPlayerTournamentState,
 
   generateTournaments: () => {
     const tournaments = generateTournamentSchedule();
@@ -285,7 +315,13 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
 
     set({ 
       tournaments: updatedTournaments,
-      activeTournament: updatedTournament
+      activeTournament: updatedTournament,
+      playerTournamentState: {
+        ...defaultPlayerTournamentState,
+        isInTournament: true,
+        tournamentId: tournamentId,
+        tournamentStartTime: updatedTournament.startTime,
+      }
     });
 
     console.log('Successfully joined tournament');
@@ -381,6 +417,151 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
     
     console.log('Forced tournament to start:', updatedTournament.id);
     return true;
+  },
+
+  leaveTournament: () => {
+    set({ playerTournamentState: defaultPlayerTournamentState });
+  },
+
+  resetPlayerTournamentState: () => {
+    set({ playerTournamentState: defaultPlayerTournamentState });
+  },
+
+  startTournamentGame: () => {
+    const { playerTournamentState } = get();
+    if (!playerTournamentState.isInTournament) return;
+
+    // Generate opponent name
+    const aiNames = ['CardMaster', 'AceHunter', 'DeckSlayer', 'BluffKing', 'SuitDominator', 'RoyalFlush', 'WildCard', 'PokerFace'];
+    const opponentName = aiNames[Math.floor(Math.random() * aiNames.length)];
+
+    set({
+      playerTournamentState: {
+        ...playerTournamentState,
+        opponentName,
+      }
+    });
+
+    // Set game mode to tournament using window reference to avoid circular import
+    if (typeof window !== 'undefined') {
+      const gameStore = (window as any).__gameStore?.getState?.();
+      if (gameStore) {
+        gameStore.setGameMode('tournament', '1v1');
+        gameStore.setCurrentScreen('game');
+      }
+    }
+  },
+
+  finishTournamentGame: (won: boolean) => {
+    const { playerTournamentState } = get();
+    if (!playerTournamentState.isInTournament) return;
+
+    const currentRound = playerTournamentState.currentRound;
+    const currentGame = playerTournamentState.currentGame;
+    const isBestOfThree = currentRound >= 4;
+
+    let newState = { ...playerTournamentState };
+
+    if (!isBestOfThree) {
+      // Best of 1 rounds (1-3)
+      if (won) {
+        newState.wins += 1;
+        newState.currentRound += 1;
+        newState.currentGame = 1;
+        
+        if (newState.currentRound > 5) {
+          // Tournament complete - player won!
+          const playerStore = usePlayerStore.getState();
+          playerStore.updateStats('tournament', '1v1', true);
+          
+          // Tournament complete - no need to track wins here as it's handled by updateStats
+          
+          // Reset tournament state
+          newState = defaultPlayerTournamentState;
+          
+          if (typeof window !== 'undefined') {
+            const gameStore = (window as any).__gameStore?.getState?.();
+            if (gameStore) {
+              gameStore.setCurrentScreen('menu');
+            }
+            setTimeout(() => alert('🏆 Congratulations! You won the tournament!'), 500);
+          }
+        }
+      } else {
+        // Eliminated
+        newState.losses += 1;
+        newState.isEliminated = true;
+        
+        const playerStore = usePlayerStore.getState();
+        playerStore.updateStats('tournament', '1v1', false);
+        
+        // Reset tournament state
+        newState = defaultPlayerTournamentState;
+        
+        if (typeof window !== 'undefined') {
+          const gameStore = (window as any).__gameStore?.getState?.();
+          if (gameStore) {
+            gameStore.setCurrentScreen('menu');
+          }
+          setTimeout(() => alert('Tournament eliminated. Better luck next time!'), 500);
+        }
+      }
+    } else {
+      // Best of 3 rounds (4-5)
+      if (won) {
+        newState.wins += 1;
+        if (newState.wins >= 2) {
+          // Won the best of 3
+          newState.currentRound += 1;
+          newState.currentGame = 1;
+          newState.wins = 0;
+          newState.losses = 0;
+          
+          if (newState.currentRound > 5) {
+            // Tournament complete - player won!
+            const playerStore = usePlayerStore.getState();
+            playerStore.updateStats('tournament', '1v1', true);
+            
+            // Reset tournament state
+            newState = defaultPlayerTournamentState;
+            
+            if (typeof window !== 'undefined') {
+              const gameStore = (window as any).__gameStore?.getState?.();
+              if (gameStore) {
+                gameStore.setCurrentScreen('menu');
+              }
+              setTimeout(() => alert('🏆 Congratulations! You won the tournament!'), 500);
+            }
+          }
+        } else {
+          newState.currentGame += 1;
+        }
+      } else {
+        newState.losses += 1;
+        if (newState.losses >= 2) {
+          // Lost the best of 3 - eliminated
+          newState.isEliminated = true;
+          
+          const playerStore = usePlayerStore.getState();
+          playerStore.updateStats('tournament', '1v1', false);
+          
+          // Reset tournament state
+          newState = defaultPlayerTournamentState;
+          
+          if (typeof window !== 'undefined') {
+            const gameStore = (window as any).__gameStore?.getState?.();
+            if (gameStore) {
+              gameStore.setCurrentScreen('menu');
+            }
+            setTimeout(() => alert('Tournament eliminated. Better luck next time!'), 500);
+          }
+        } else {
+          newState.currentGame += 1;
+        }
+      }
+    }
+
+    set({ playerTournamentState: newState });
   }
 }));
 

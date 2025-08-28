@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
+import { useTournamentStore } from "../lib/stores/useTournamentStore";
 import { playGame, generateAIName, calculateMMRChange, getRankFromMMR } from "../lib/gameLogic";
 import { calculateXPGain } from "../lib/xpSystem";
 import Card from "./Card";
@@ -27,6 +28,7 @@ interface Player {
 const GameBoard = () => {
   const { gameMode, gameType, setCurrentScreen } = useGameStore();
   const { updateStats, playerStats, getXPProgress, currentSeason } = usePlayerStore() as any;
+  const { finishTournamentGame, playerTournamentState } = useTournamentStore();
   
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentRound, setCurrentRound] = useState(1);
@@ -464,8 +466,9 @@ const GameBoard = () => {
     
     setGameWinner(winner);
     
-    // Calculate XP gained
-    const xpGained = calculateXPGain(playerWon, gameMode, gameType);
+    // Calculate XP gained (tournament games give XP like casual games)
+    const xpGameMode = gameMode === 'tournament' ? 'casual' : gameMode;
+    const xpGained = calculateXPGain(playerWon, xpGameMode as 'casual' | 'ranked', gameType);
     setXpGained(xpGained);
     
     // Update player stats with opponent MMR for ranked games
@@ -475,6 +478,11 @@ const GameBoard = () => {
       updateStats(gameMode, gameType, playerWon, opponentMMR);
     } else {
       updateStats(gameMode, gameType, playerWon);
+    }
+    
+    // Handle tournament game completion
+    if (gameMode === 'tournament') {
+      finishTournamentGame(playerWon);
     }
     
     // Show XP gain display after a short delay
@@ -517,6 +525,12 @@ const GameBoard = () => {
           </div>
           <div className="text-sm text-gray-400">
             {gameMode.charAt(0).toUpperCase() + gameMode.slice(1)} {gameType}
+            {gameMode === 'tournament' && playerTournamentState.isInTournament && (
+              <div className="text-xs text-purple-400 mt-1">
+                Tournament Round {playerTournamentState.currentRound}/5
+                {playerTournamentState.currentRound >= 4 && ` - Game ${playerTournamentState.currentGame}`}
+              </div>
+            )}
           </div>
           {gameMode === 'ranked' && (
             <div className="text-xs text-yellow-400 mt-1">
