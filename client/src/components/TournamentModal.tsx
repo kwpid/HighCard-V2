@@ -14,7 +14,8 @@ const TournamentModal = () => {
     getCurrentTournament, 
     getNextTournaments, 
     getPlayerTournamentRank,
-    joinTournament
+    joinTournament,
+    forceStartTournament
   } = useTournamentStore();
 
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -88,6 +89,16 @@ const TournamentModal = () => {
     }
   };
 
+  const handleForceStart = () => {
+    const success = forceStartTournament();
+    if (success) {
+      alert('Tournament started successfully!');
+      generateTournaments(); // Refresh tournament list
+    } else {
+      alert('No upcoming tournaments to start.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -97,12 +108,21 @@ const TournamentModal = () => {
             <Trophy size={24} className="text-yellow-400" />
             <h2 className="text-2xl font-bold text-white">Tournaments</h2>
           </div>
-          <button
-            onClick={() => setModalsOpen('tournament', false)}
-            className="text-gray-400 hover:text-white"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleForceStart}
+              className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors"
+              title="Force start next tournament (for testing)"
+            >
+              Force Start
+            </button>
+            <button
+              onClick={() => setModalsOpen('tournament', false)}
+              className="text-gray-400 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}

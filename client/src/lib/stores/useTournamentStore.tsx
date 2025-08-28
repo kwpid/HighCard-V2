@@ -54,6 +54,7 @@ interface TournamentState {
   simulateMatchResult: (matchId: string) => void;
   advancePlayerInTournament: () => void;
   awardTournamentTitle: (tournament: Tournament, participant: TournamentParticipant) => void;
+  forceStartTournament: () => boolean;
 }
 
 // Helper function to determine tournament rank based on highest MMR
@@ -145,15 +146,30 @@ const createBracket = (participants: TournamentParticipant[]): TournamentBracket
   };
 };
 
-// Generate tournament schedule (every 10 minutes)
+// Generate tournament schedule (every 10 minutes at fixed times like XX:00, XX:10, XX:20)
 const generateTournamentSchedule = (): Tournament[] => {
   const tournaments: Tournament[] = [];
   const now = Date.now();
-  const interval = 10 * 60 * 1000; // 10 minutes in milliseconds
+  const currentDate = new Date(now);
+  
+  // Calculate next tournament time (round up to next 10-minute mark)
+  const currentMinutes = currentDate.getMinutes();
+  const currentSeconds = currentDate.getSeconds();
+  const currentMs = currentDate.getMilliseconds();
+  
+  // Round up to next 10-minute interval
+  const nextInterval = Math.ceil(currentMinutes / 10) * 10;
+  const nextTournamentDate = new Date(currentDate);
+  nextTournamentDate.setMinutes(nextInterval, 0, 0); // Set to next 10-minute mark with 0 seconds and ms
+  
+  // If we're already past this hour's last interval, move to next hour
+  if (nextInterval >= 60) {
+    nextTournamentDate.setHours(nextTournamentDate.getHours() + 1, 0, 0, 0);
+  }
   
   // Generate next 6 tournaments (1 hour worth)
   for (let i = 0; i < 6; i++) {
-    const startTime = now + (i * interval);
+    const startTime = nextTournamentDate.getTime() + (i * 10 * 60 * 1000); // 10 minutes apart
     const endTime = startTime + (8 * 60 * 1000); // 8 minutes per tournament
     
     ['1v1', '2v2'].forEach((type) => {
@@ -334,6 +350,37 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       rankColor: titleColor,
       glow
     });
+  },
+
+  forceStartTournament: () => {
+    const { tournaments } = get();
+    const now = Date.now();
+    
+    // Find the next upcoming tournament
+    const nextTournament = tournaments
+      .filter(t => t.status === 'upcoming' && t.startTime > now)
+      .sort((a, b) => a.startTime - b.startTime)[0];
+    
+    if (!nextTournament) {
+      console.log('No upcoming tournaments to force start');
+      return false;
+    }
+    
+    // Update the tournament start time to now
+    const updatedTournament = {
+      ...nextTournament,
+      startTime: now,
+      endTime: now + (8 * 60 * 1000) // 8 minutes from now
+    };
+    
+    const updatedTournaments = tournaments.map(t => 
+      t.id === nextTournament.id ? updatedTournament : t
+    );
+    
+    set({ tournaments: updatedTournaments });
+    
+    console.log('Forced tournament to start:', updatedTournament.id);
+    return true;
   }
 }));
 
