@@ -159,23 +159,6 @@ const Menu = () => {
                 <div className="text-sm text-purple-200">Tournament Record</div>
                 <div className="font-bold">{playerTournamentState.wins}W - {playerTournamentState.losses}L</div>
               </div>
-              {(() => {
-                const currentTournament = getCurrentTournament();
-                const canPlay = currentTournament && currentTournament.status === 'active';
-                return (
-                  <button
-                    onClick={handleTournamentGame}
-                    disabled={!canPlay}
-                    className={`px-4 py-2 rounded font-bold transition-colors ${
-                      canPlay 
-                        ? 'bg-green-500 hover:bg-green-600 text-white'
-                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                    }`}
-                  >
-                    {canPlay ? 'PLAY TOURNAMENT GAME' : 'WAITING FOR TOURNAMENT'}
-                  </button>
-                );
-              })()} 
             </div>
           </div>
         </div>
