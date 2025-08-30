@@ -444,10 +444,24 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
 
     // Set game mode to tournament using window reference to avoid circular import
     if (typeof window !== 'undefined') {
-      const gameStore = (window as any).__gameStore?.getState?.();
+      const gameStore = (window as any).__gameStore;
       if (gameStore) {
-        gameStore.setGameMode('tournament', '1v1');
-        gameStore.setCurrentScreen('game');
+        console.log('Starting tournament game with opponent:', opponentName);
+        console.log('Setting game mode to tournament, 1v1');
+        
+        // Get the state and actions
+        const state = gameStore.getState();
+        if (state && state.setGameMode && state.setCurrentScreen) {
+          state.setGameMode('tournament', '1v1');
+          state.setCurrentScreen('game');
+          console.log('Tournament game started successfully!');
+        } else {
+          console.error('Game store methods not available:', state);
+          alert('Failed to start tournament game. Please try again.');
+        }
+      } else {
+        console.error('Game store not found on window object');
+        alert('Game system not ready. Please refresh the page and try again.');
       }
     }
   },
