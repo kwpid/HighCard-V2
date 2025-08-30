@@ -159,16 +159,6 @@ const Menu = () => {
                 <div className="text-sm text-purple-200">Tournament Record</div>
                 <div className="font-bold">{playerTournamentState.wins}W - {playerTournamentState.losses}L</div>
               </div>
-              <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to leave the tournament?')) {
-                    leaveTournament();
-                  }
-                }}
-                className="px-4 py-2 rounded font-bold bg-red-500 hover:bg-red-600 text-white transition-colors"
-              >
-                LEAVE QUEUE
-              </button>
               {(() => {
                 const currentTournament = getCurrentTournament();
                 const canPlay = currentTournament && currentTournament.status === 'active';
