@@ -246,7 +246,7 @@ const Menu = () => {
       )}
 
       {/* Main Menu Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full max-w-3xl justify-center">
         {/* Casual Button */}
         <button
           onClick={() => handleModeSelect('casual')}
