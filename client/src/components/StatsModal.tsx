@@ -1,12 +1,105 @@
 import { useGameStore } from "../lib/stores/useGameStore";
 import { usePlayerStore } from "../lib/stores/usePlayerStore";
-import { X, TrendingUp, Trophy, Zap, Star } from "lucide-react";
+import { X, TrendingUp, Trophy, Zap, Star, BarChart3 } from "lucide-react";
 import XPProgress from "./XPProgress";
 import RankImage from "./RankImage";
+import MMRHistoryGraph from "./MMRHistoryGraph";
+import React, { useState, useEffect } from "react";
+
+interface MMRDataPoint {
+  date: string;
+  mmr: number;
+  rank: string;
+  division?: string;
+}
+
+interface SeasonalPeak {
+  season: number;
+  peakMMR: number;
+  peakRank?: string;
+  peakDivision?: string;
+  achievedAt: string;
+}
 
 const StatsModal = () => {
   const { modalsOpen, setModalsOpen } = useGameStore();
-  const { playerStats, getXPProgress } = usePlayerStore();
+  const { playerStats, getXPProgress, currentSeason } = usePlayerStore();
+  const [mmrHistory1v1, setMmrHistory1v1] = useState<MMRDataPoint[]>([]);
+  const [mmrHistory2v2, setMmrHistory2v2] = useState<MMRDataPoint[]>([]);
+  const [seasonalPeaks, setSeasonalPeaks] = useState<SeasonalPeak[]>([]);
+  const [showGraphs, setShowGraphs] = useState(false);
+
+  useEffect(() => {
+    if (modalsOpen.stats) {
+      // For now, generate sample data since we're using local storage
+      // In a real implementation, this would fetch from the API
+      generateSampleMMRData();
+    }
+  }, [modalsOpen.stats]);
+
+  const generateSampleMMRData = () => {
+    const generateDataForMode = (mode: '1v1' | '2v2', startMMR: number): MMRDataPoint[] => {
+      const data: MMRDataPoint[] = [];
+      const currentMMR = playerStats.rankedStats[mode].mmr;
+      const games = playerStats.rankedStats[mode].gamesPlayed;
+      
+      if (games === 0) return [];
+      
+      // Generate sample history based on current stats
+      const numPoints = Math.min(games, 20);
+      for (let i = 0; i < numPoints; i++) {
+        const progress = i / (numPoints - 1);
+        const mmr = Math.round(startMMR + (currentMMR - startMMR) * progress + (Math.random() - 0.5) * 100);
+        const date = new Date();
+        date.setDate(date.getDate() - (numPoints - i) * 2);
+        
+        data.push({
+          date: date.toISOString(),
+          mmr: Math.max(0, mmr),
+          rank: playerStats.rankedStats[mode].currentRank || 'Bronze',
+          division: playerStats.rankedStats[mode].division || 'I'
+        });
+      }
+      return data;
+    };
+
+    setMmrHistory1v1(generateDataForMode('1v1', 450));
+    setMmrHistory2v2(generateDataForMode('2v2', 450));
+    
+    // Generate sample seasonal peaks
+    const peaks: SeasonalPeak[] = [];
+    if (playerStats.rankedStats['1v1'].peakMMR && playerStats.rankedStats['1v1'].peakMMR > 450) {
+      peaks.push({
+        season: currentSeason,
+        peakMMR: playerStats.rankedStats['1v1'].peakMMR,
+        peakRank: playerStats.rankedStats['1v1'].highestRank || undefined,
+        peakDivision: playerStats.rankedStats['1v1'].highestDivision || undefined,
+        achievedAt: new Date().toISOString()
+      });
+    }
+    if (playerStats.rankedStats['2v2'].peakMMR && playerStats.rankedStats['2v2'].peakMMR > 450) {
+      peaks.push({
+        season: currentSeason,
+        peakMMR: playerStats.rankedStats['2v2'].peakMMR,
+        peakRank: playerStats.rankedStats['2v2'].highestRank || undefined,
+        peakDivision: playerStats.rankedStats['2v2'].highestDivision || undefined,
+        achievedAt: new Date().toISOString()
+      });
+    }
+    setSeasonalPeaks(peaks);
+  };
+
+  const getSeasonalPeakDisplay = (mode: '1v1' | '2v2') => {
+    const peak = seasonalPeaks.find(p => 
+      p.peakMMR === playerStats.rankedStats[mode].peakMMR
+    );
+    
+    if (peak && peak.season !== undefined) {
+      return `${peak.peakMMR} (Season ${peak.season})`;
+    }
+    
+    return `${playerStats.rankedStats[mode].peakMMR || playerStats.rankedStats[mode].mmr} (Current Season)`;
+  };
 
   if (!modalsOpen.stats) return null;
 
@@ -48,7 +141,12 @@ const StatsModal = () => {
                 <div className="text-2xl font-bold text-yellow-400">
                   Peak MMR: {Math.max(playerStats.rankedStats['1v1'].peakMMR || 0, playerStats.rankedStats['2v2'].peakMMR || 0)}
                 </div>
-                <div className="text-sm text-gray-400">Highest Rank: {(playerStats.rankedStats['1v1'].highestRank || playerStats.rankedStats['2v2'].highestRank) || '—'}</div>
+                <div className="text-sm text-gray-400">
+                  Highest Rank: {(playerStats.rankedStats['1v1'].highestRank || playerStats.rankedStats['2v2'].highestRank) || '—'}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Season {currentSeason} • {Math.max(playerStats.rankedStats['1v1'].peakMMR || 0, playerStats.rankedStats['2v2'].peakMMR || 0) > 450 ? 'Current Peak' : 'Starting MMR'}
+                </div>
               </div>
               <div className="bg-gray-700 rounded-lg p-4">
                 <div className="text-2xl font-bold text-red-400">
@@ -207,7 +305,7 @@ const StatsModal = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Peak MMR:</span>
-                    <span className="text-white font-medium">{playerStats.rankedStats['1v1'].peakMMR || playerStats.rankedStats['1v1'].mmr}</span>
+                    <span className="text-white font-medium">{getSeasonalPeakDisplay('1v1')}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Highest Rank:</span>
@@ -282,7 +380,7 @@ const StatsModal = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Peak MMR:</span>
-                    <span className="text-white font-medium">{playerStats.rankedStats['2v2'].peakMMR || playerStats.rankedStats['2v2'].mmr}</span>
+                    <span className="text-white font-medium">{getSeasonalPeakDisplay('2v2')}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Highest Rank:</span>
@@ -331,6 +429,29 @@ const StatsModal = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* MMR History Graphs */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <BarChart3 size={24} className="text-blue-400" />
+                MMR History
+              </h3>
+              <button
+                onClick={() => setShowGraphs(!showGraphs)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm transition-colors"
+              >
+                {showGraphs ? 'Hide Graphs' : 'Show Graphs'}
+              </button>
+            </div>
+            
+            {showGraphs && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <MMRHistoryGraph data={mmrHistory1v1} gameMode="1v1" />
+                <MMRHistoryGraph data={mmrHistory2v2} gameMode="2v2" />
+              </div>
+            )}
           </div>
 
           {/* Season Rewards Progress */}
