@@ -61,6 +61,8 @@ interface PlayerState {
   equipTitle: (id: string | null) => void;
   addTitleIfNotOwned: (title: { id: string; name: string; type: 'regular' | 'ranked' | 'tournament'; season?: number; rankColor?: string; glow?: boolean }) => boolean;
   getSeasonRewardStatus: () => { currentTier: string; nextTier: string | null; winsInTier: number; winsNeeded: number };
+  awardSeasonRewards: (previousSeason: number, playerStats: PlayerStats) => void;
+  forceSeasonReset: () => void;
 }
 
 const defaultStats: PlayerStats = {
@@ -279,30 +281,163 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     
     set({ currentSeason: newSeason });
     
-    // If season has advanced, update AI leaderboard stats
-    if (newSeason > previousSeason && typeof window !== 'undefined') {
-      setTimeout(() => {
-        try {
-          // Access the leaderboard store that should be available on window
-          const leaderboardStore = (window as any).__leaderboardStore;
-          if (leaderboardStore) {
-            const { progressAIStats } = leaderboardStore.getState();
-            progressAIStats(newSeason);
+    // If season has advanced, handle season reset and rewards
+    if (newSeason > previousSeason && previousSeason > 0) {
+      console.log(`Season ended! Previous: ${previousSeason}, New: ${newSeason}`);
+      
+      // Award season-end rewards and titles before reset
+      const { playerStats } = get();
+      get().awardSeasonRewards(previousSeason, playerStats);
+      
+      // Then reset the season stats
+      get().resetSeasonStats();
+      
+      // Update AI leaderboard stats
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          try {
+            const leaderboardStore = (window as any).__leaderboardStore;
+            if (leaderboardStore) {
+              const { progressAIStats } = leaderboardStore.getState();
+              progressAIStats(newSeason);
+            }
+          } catch (error) {
+            console.error('Error updating AI stats for new season:', error);
           }
-        } catch (error) {
-          console.error('Error updating AI stats for new season:', error);
-        }
-      }, 100);
+        }, 100);
+      }
     }
   },
 
+  awardSeasonRewards: (previousSeason: number, playerStats: PlayerStats) => {
+    const rewards: any[] = [];
+    const newTitles: any[] = [];
+    
+    // Award titles based on highest rank achieved in each mode
+    const modes: ('1v1' | '2v2')[] = ['1v1', '2v2'];
+    
+    modes.forEach(mode => {
+      const highestRank = playerStats.rankedStats[mode].highestRank;
+      const highestDivision = playerStats.rankedStats[mode].highestDivision;
+      
+      if (highestRank) {
+        const titleId = `season_${previousSeason}_${mode}_${highestRank.toLowerCase().replace(' ', '_')}`;
+        const titleName = `S${previousSeason} ${highestRank}${highestDivision ? ` ${highestDivision}` : ''} (${mode.toUpperCase()})`;
+        
+        // Get rank color for the title
+        const rankColors: { [key: string]: string } = {
+          'bronze': '#cd7f32',
+          'silver': '#c0c0c0',
+          'gold': '#ffd700',
+          'platinum': '#e5e4e2',
+          'diamond': '#b9f2ff',
+          'champion': '#9d4edd',
+          'grand champion': '#ff006e',
+          'card legend': '#ffffff'
+        };
+        
+        const title = {
+          id: titleId,
+          name: titleName,
+          type: 'ranked' as const,
+          season: previousSeason,
+          rankColor: rankColors[highestRank.toLowerCase()] || '#ffffff',
+          glow: ['Champion', 'Grand Champion', 'Card Legend'].includes(highestRank)
+        };
+        
+        const wasAdded = get().addTitleIfNotOwned(title);
+        if (wasAdded) {
+          newTitles.push(title);
+          rewards.push({ id: titleId, type: 'title', name: titleName });
+        }
+      }
+    });
+    
+    // Award season win-based rewards (XP, titles)
+    const seasonWins = playerStats.totalSeasonWins;
+    if (seasonWins >= 10) {
+      const winTitleId = `season_${previousSeason}_warrior`;
+      const winTitle = {
+        id: winTitleId,
+        name: `S${previousSeason} Warrior`,
+        type: 'ranked' as const,
+        season: previousSeason,
+        rankColor: '#10b981',
+        glow: false
+      };
+      
+      const wasAdded = get().addTitleIfNotOwned(winTitle);
+      if (wasAdded) {
+        newTitles.push(winTitle);
+        rewards.push({ id: winTitleId, type: 'title', name: winTitle.name });
+      }
+    }
+    
+    if (seasonWins >= 50) {
+      const veteranTitleId = `season_${previousSeason}_veteran`;
+      const veteranTitle = {
+        id: veteranTitleId,
+        name: `S${previousSeason} Veteran`,
+        type: 'ranked' as const,
+        season: previousSeason,
+        rankColor: '#f59e0b',
+        glow: true
+      };
+      
+      const wasAdded = get().addTitleIfNotOwned(veteranTitle);
+      if (wasAdded) {
+        newTitles.push(veteranTitle);
+        rewards.push({ id: veteranTitleId, type: 'title', name: veteranTitle.name });
+      }
+    }
+    
+    // Award bonus XP based on season performance
+    const bonusXP = Math.min(seasonWins * 25 + (playerStats.rankedStats['1v1'].wins + playerStats.rankedStats['2v2'].wins) * 10, 1000);
+    if (bonusXP > 0) {
+      rewards.push({ id: 'season_xp', type: 'xp', amount: bonusXP });
+      
+      // Apply the XP bonus
+      set((state: PlayerState) => {
+        const newStats = { ...state.playerStats };
+        newStats.xp += bonusXP;
+        
+        // Check for level up
+        const newLevel = checkLevelUp(newStats.xp, newStats.level);
+        if (newLevel) {
+          newStats.level = newLevel;
+        }
+        
+        localStorage.setItem('highcard-player-stats', JSON.stringify(newStats));
+        return { playerStats: newStats };
+      });
+    }
+    
+    // Show rewards modal if there are any rewards
+    if (rewards.length > 0) {
+      console.log('Season rewards awarded:', rewards);
+      
+      // Queue rewards for display
+      import('./useGameStore').then(mod => {
+        const { enqueueRewards } = mod.useGameStore.getState();
+        enqueueRewards(rewards);
+      }).catch(() => {});
+    }
+  },
+  
   resetSeasonStats: () => {
     set((state: PlayerState) => {
       const newStats = { ...state.playerStats };
       
-      // Soft reset MMR (like Rocket League)
-      newStats.rankedStats['1v1'].mmr = Math.floor(newStats.rankedStats['1v1'].mmr * 0.7);
-      newStats.rankedStats['2v2'].mmr = Math.floor(newStats.rankedStats['2v2'].mmr * 0.7);
+      // Soft reset MMR (reduce by 30%, keep 70%)
+      newStats.rankedStats['1v1'].mmr = Math.max(450, Math.floor(newStats.rankedStats['1v1'].mmr * 0.7));
+      newStats.rankedStats['2v2'].mmr = Math.max(450, Math.floor(newStats.rankedStats['2v2'].mmr * 0.7));
+      
+      // Reset peak MMR to current MMR since it's a new season
+      newStats.rankedStats['1v1'].peakMMR = newStats.rankedStats['1v1'].mmr;
+      newStats.rankedStats['2v2'].peakMMR = newStats.rankedStats['2v2'].mmr;
+      
+      // Keep highest rank and division achieved (lifetime achievement)
+      // but reset current rank to null so players need to do placements
       
       // Reset placement matches and season wins
       newStats.rankedStats['1v1'].placementMatches = 0;
@@ -369,4 +504,19 @@ export const usePlayerStore = create<PlayerState>((set: any, get: any) => ({
     const { playerStats } = get();
     return calculateXPProgress(playerStats.xp, playerStats.level);
   },
+  
+  forceSeasonReset: () => {
+    const { playerStats, currentSeason } = get();
+    console.log('Forcing season reset for testing...');
+    
+    // Award rewards for current season
+    get().awardSeasonRewards(currentSeason, playerStats);
+    
+    // Reset stats
+    get().resetSeasonStats();
+    
+    // Increment season for testing
+    set({ currentSeason: currentSeason + 1 });
+    localStorage.setItem('highcard-current-season', (currentSeason + 1).toString());
+  }
 }));
